@@ -1,0 +1,92 @@
+tr td {
+    display: table-cell; /* comportement visuel de cellule */
+    vertical-align: middle;
+    padding: 0;
+    margin: 0;
+    height: 2.5em;
+}
+
+svg {
+    margin: auto;
+}
+
+svg:hover{
+    cursor: pointer;
+}
+
+#icon-wrench {
+    margin-top: 5px;
+    -webkit-animation: wrench-rotate 2s steps(3) alternate infinite;
+    animation: wrench-rotate 2s steps(3) alternate infinite;
+    -webkit-transform-origin: right;
+    transform-origin: right;
+    width: 15px;
+    height: auto;
+}
+
+@-webkit-keyframes wrench-rotate {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(50deg);
+        transform: rotate(50deg);
+    }
+}
+
+@keyframes wrench-rotate {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(50deg);
+        transform: rotate(50deg);
+    }
+}
+
+#icon-trash .trash-close {
+    -webkit-animation: trashing linear 2s;
+    animation: trashing linear 2s;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+}
+
+#icon-reload {
+    -webkit-animation: reload 2s steps(4) infinite;
+    animation: reload 2s steps(4) infinite;
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    width: 40px;
+    height: 40px;
+}
+
+
+@-webkit-keyframes reload {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes reload {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}

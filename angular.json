@@ -23,7 +23,8 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "src/assets/css/main.css"
             ],
             "scripts": [],
             "es5BrowserSupport": true
@@ -132,5 +133,8 @@
       }
     }
   },
-  "defaultProject": "ngQuizFactory"
+  "defaultProject": "ngQuizFactory",
+  "cli": {
+    "defaultCollection": "@ngrx/schematics"
+  }
 }

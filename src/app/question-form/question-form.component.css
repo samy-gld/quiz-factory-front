@@ -1,0 +1,94 @@
+:host {
+    display: flex;
+    width: 100%;
+}
+
+form {
+    display: flex;
+}
+
+form .icons-prev-next {
+    display: flex;
+}
+
+.main__item {
+	border-radius: 4px;
+	padding: 5px;
+	display: inline-block;
+	margin: 5px;
+  }
+
+  .main__item svg {
+	  width: 35px;
+	  height: 35px;
+	  stroke: #D2D7D9;
+	  stroke-width: 2.25;
+	  stroke-linecap: square;
+	  stroke-linejoin: miter;
+	  fill: none;
+      color: #D2D7D9;
+      margin-left: 30px;
+      margin-right: 30px;
+}
+
+svg:hover{
+    cursor: pointer;
+}
+
+.question {
+    padding-right: 2em;
+}
+
+.prop-display {
+    display: flex; 
+    align-items: center;
+}
+
+input[type="text"] {
+    width: 410px;
+}
+
+textarea {
+    width: 410px;
+    height: 120px;
+}
+
+svg {
+    text-align: center;
+    margin: auto;
+}
+
+#icon-reload {
+    -webkit-animation: reload 2s steps(4) infinite;
+    animation: reload 2s steps(4) infinite;
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    width: 40px;
+    height: 40px;
+  }
+
+
+  @-webkit-keyframes reload {
+    0% {
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+
+    100% {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes reload {
+    0% {
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+
+    100% {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+

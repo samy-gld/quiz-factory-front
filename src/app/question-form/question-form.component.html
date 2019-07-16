@@ -1,0 +1,73 @@
+<div *ngIf="loadingQuestion | async" fill="#d2d7d9" style="width: 100%; padding-top: 25vh; display: flex; align-content: center">
+    <svg id="icon-reload" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z" />
+      <path d="M0 0h24v24H0z" fill="none" />
+    </svg>
+</div>
+<form *ngIf="!(loadingQuestion | async) && (questionForm$ |async)" [formGroup]="questionForm$ | async" (ngSubmit)="onSubmitQuestion()">
+  <div class="question">
+    <div class="icons-prev-next">
+      <div class="main__item">
+        <svg (click)="questionPosition > 1 && switchQuestion($event)" id="prev" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-labelledby="circleArrowLeftIconTitle">
+          <title id="circleArrowLeftIconTitle">Arrow Left</title>
+          <path d="M10.5 15l-3-3 3-3"></path>
+          <path d="M16.5 12H9"></path>
+          <path stroke-linecap="round" d="M7.5 12H9"></path>
+          <circle cx="12" cy="12" r="10"></circle>
+        </svg>
+      </div>
+      
+      <h2>Question n°{{ questionPosition }}</h2>
+      
+      <div class="main__item">
+        <svg (click)="switchQuestion($event)" id="next" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-labelledby="circleArrowRightIconTitle">
+          <title id="circleArrowRightIconTitle">Arrow Right</title>
+          <path d="M13.5 9l3 3-3 3"></path>
+          <path d="M7.5 12H15"></path>
+          <path stroke-linecap="round" d="M16.5 12H15"></path>
+          <circle cx="12" cy="12" r="10"></circle>
+        </svg>
+      </div>
+    </div>
+
+    <label for="questionLabel">Intitulé de la question</label>
+    <textarea id="questionLabel" formControlName="questionLabel"></textarea>
+
+    <br>
+
+    <div class="row gtr-uniform">
+        <!-- Break -->
+        <div class="col-4 col-12-small">
+            <input id="duo" type="radio" value="duo" name="questionType"
+                    formControlName="questionType" (change)="updateQuestionType($event)" >
+            <label for="duo">Duo</label>
+        </div>
+        <div class="col-4 col-12-small">
+            <input id="carre" type="radio" value="carre" name="questionType"
+                    formControlName="questionType" (change)="updateQuestionType($event)" >
+            <label for="carre">Carre</label>
+        </div>
+        <div class="col-4 col-12-small">
+          <input id="qcm" type="radio" value="qcm" name="questionType"
+                    formControlName="questionType" (change)="updateQuestionType($event)" >
+          <label for="qcm">QCM</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="proposition"  formArrayName="propositions">
+      <h2>Propositions</h2>
+      
+      <div style="padding-top: 1em" *ngFor="let propositionGroup of (propositions | async); let i = index">
+
+        <div class="prop-display" [formGroupName]="i">
+          <div>
+            <input type="checkbox" [attr.id]="'check_' + i" name="wrightAnswer" formControlName="wrightAnswer"
+                (change)="uncheckOthers($event)" >
+            <label [attr.for]="'check_' + i"></label>
+          </div>
+          <input type="text" formControlName="labelProp" />
+        </div>
+      </div>
+  </div>
+</form>

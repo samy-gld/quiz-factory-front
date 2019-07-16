@@ -1,0 +1,14 @@
+<h2>Définissez votre Quiz</h2>
+<form (ngSubmit)="onSubmit(f)" #f="ngForm">
+  <label for="quizName">Nom du Quiz</label>
+  <input id="quizName" type="text" name="quizName" [ngModel]="quiz.name" />
+
+  <br>
+
+  <label for="quizDesc">Description</label>
+  <input id="quizDesc" type="text" name="quizDesc" [ngModel]="quiz.description" />
+
+  <br>
+
+  <button type="submit">Enregistrer</button>
+</form>
