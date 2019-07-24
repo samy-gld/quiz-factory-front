@@ -2,23 +2,18 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { QuestionService } from '../services/question.service';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
-import { Question, Proposition, QuestionType } from '../model/IQuiz';
+import { Question, Proposition } from '../model/IQuiz';
 import { DynamicService } from '../services/dynamic.service';
-import * as questionAction from '../store/actions/question.actions';
 import { select, Store } from '@ngrx/store';
-import { filter, map, skipWhile, take } from 'rxjs/operators';
-import { Observable, of, Subscription } from 'rxjs';
-import * as fromQuiz from '../store/reducers/quiz.reducer';
+import { debounceTime, filter, map, skipWhile, takeWhile, tap } from 'rxjs/operators';
+import { Observable, of, Subscription, timer } from 'rxjs';
 import * as fromQuestion from '../store/reducers/question.reducer';
-import { LoadQuiz } from '../store/actions/quiz.actions';
 import {
-    CreateProposition,
-    CreateQuestion,
-    DeleteProposition,
-    LoadQuestions, UnsetAll,
-    UpdateProposition,
-    UpdateQuestion
-} from '../store/actions/question.actions';
+    DecrementPosition, IncrementPosition, LoadQuestions,
+    LoadQuiz, ResetErrorSaving, UnsetAll } from '../store/actions/question.actions';
+import { UpdateQuestionForm } from '../store/actions/question.actions';
+import { ToastrService } from 'ngx-toastr';
+import {selectCurrentQuiz} from '../store/reducers/question.reducer';
 
 @Component({
     selector: 'app-question-form',
@@ -31,26 +26,22 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
     quizFinalized: boolean;
     currentQuestion: Question;
     questionPosition = 1;
-    typeLength = {
-        duo: 2,
-        carre: 4,
-        qcm: 6
-    };
-    newQuestion = {label: '', type: 'duo' as QuestionType, position: 0, propositions: []} as Question;
-    newProposition = {label: '', wrightAnswer: false} as Proposition;
+    typeLength = {duo: 2, carre: 4, qcm: 6};
     loadingQuestion = this.questionStore.select(fromQuestion.selectLoading);
     questionForm$: Observable<FormGroup>;
     validation: string;
-    navigationSubscription;
+    navigationSubscription: Subscription;
     selectQuizSubscription: Subscription;
     loadingQuestionsSubscription: Subscription;
+    regularSaveLauncher: Subscription;
+    alive = true;
 
     constructor(private questionService: QuestionService,
                 private router: Router,
                 private activatedRoute: ActivatedRoute,
                 private dynamicService: DynamicService,
-                private quizStore: Store<fromQuiz.QuizState>,
-                private questionStore: Store<fromQuestion.QuestionState>) {
+                private questionStore: Store<fromQuestion.QuestionState>,
+                private toastr: ToastrService) {
 
         this.navigationSubscription = router.events.subscribe(
             (e: any) => {
@@ -61,19 +52,41 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
         );
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.currentQuizId = this.activatedRoute.snapshot.params.id as number;
         this.dynamicService.emitAction('Construisez votre quiz, question par question...');
         this.initFirstQuestion();
+        this.regularSaveLauncher = timer(30000, 30000).subscribe(
+            () => {
+                this.questionService.onSaveQuestions(this.currentQuizId);
+                this.questionStore.pipe(
+                    select(fromQuestion.selectErrorSaving),
+                    filter(error => !!error)
+                ).subscribe(
+                    () => {
+                        this.toastr.warning('Attention, erreur lors de la sauvegarde');
+                        this.questionStore.dispatch(ResetErrorSaving());
+                    }
+                ).unsubscribe();
+            }
+        );
     }
 
     ngOnDestroy(): void {
         if (this.navigationSubscription) {
             this.navigationSubscription.unsubscribe();
         }
-        this.selectQuizSubscription.unsubscribe();
-        this.loadingQuestionsSubscription.unsubscribe();
+        if (this.selectQuizSubscription) {
+            this.selectQuizSubscription.unsubscribe();
+        }
+        if (this.loadingQuestionsSubscription) {
+            this.loadingQuestionsSubscription.unsubscribe();
+        }
+        if (this.regularSaveLauncher) {
+            this.regularSaveLauncher.unsubscribe();
+        }
         this.questionStore.dispatch(UnsetAll());
+        this.alive = false;
     }
 
     onValidation() {
@@ -89,15 +102,15 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
     }
 
     initFirstQuestion() {
-        this.quizStore.dispatch(LoadQuiz({id: this.currentQuizId}));
+        this.questionStore.dispatch(LoadQuiz({id: this.currentQuizId}));
         this.questionStore.dispatch(LoadQuestions({id: this.activatedRoute.snapshot.params.id as number}));
 
         this.loadingQuestionsSubscription = this.loadingQuestion.pipe(
             skipWhile(loading => loading === true)
         ).subscribe(
             () => {
-                this.selectQuizSubscription = this.quizStore.pipe(
-                    select(fromQuiz.selectCurrentQuiz),
+                this.selectQuizSubscription = this.questionStore.pipe(
+                    select(selectCurrentQuiz),
                     skipWhile(quiz => quiz === null)
                 ).subscribe(
                     (quiz) => {
@@ -118,15 +131,14 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
             (currentPosition) => this.questionPosition = currentPosition
         );
         this.questionStore.select(fromQuestion.selectCurrentQuestion).subscribe(
-            (question) => this.currentQuestion = question
+            (q) => this.currentQuestion = q
         );
 
         const propFormArray = new FormArray([]);
         let type: string;
         let label: string;
         let propTab: Proposition[];
-        if (this.currentQuestion === null
-            || this.currentQuestion.position !== this.questionPosition) {
+        if (this.currentQuestion === null || this.currentQuestion.position !== this.questionPosition) {
             type = 'duo';
             label = '';
             propTab = [];
@@ -139,13 +151,28 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
 
         if (propTabLength !== 0) {
             for (let i = 0; i < propTabLength; i++) {
-                const wrightAnswer = propTab[i] !== undefined ? propTab[i].wrightAnswer : false;
-                const propLabel = propTab[i] !== undefined ? propTab[i].label : '';
+                let id: number;
+                let position: number;
+                let wrightAnswer: boolean;
+                let propLabel: string;
+                if (propTab[i] !== undefined) {
+                    id = propTab[i].id;
+                    position = propTab[i].position;
+                    wrightAnswer = propTab[i].wrightAnswer;
+                    propLabel = propTab[i].label;
+                } else {
+                    id = null;
+                    position = i + 1;
+                    wrightAnswer = false;
+                    propLabel = '';
+                }
                 propFormArray.push(
                     new FormGroup(
                         {
-                            wrightAnswer: new FormControl(wrightAnswer),
-                            labelProp: new FormControl(propLabel)
+                            id: new FormControl(id),
+                            position: new FormControl(position),
+                            wrightAnswer: new FormControl({value: wrightAnswer, disabled: this.quizFinalized}),
+                            label: new FormControl({value: propLabel, disabled: this.quizFinalized})
                         }
                     )
                 );
@@ -163,6 +190,28 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
                 }
             )
         );
+
+        this.questionForm$.pipe(
+            tap(
+                (form) => form.valueChanges.pipe(
+                    debounceTime(500),
+                    takeWhile(() => this.alive)
+                )
+                .subscribe(
+                    change => this.questionStore.dispatch(UpdateQuestionForm(
+                        {
+                            question: {
+                                id: this.currentQuestion ? this.currentQuestion.id : null,
+                                position: this.questionPosition,
+                                label: change.questionLabel,
+                                type: change.questionType,
+                                propositions: change.propositions
+                            }
+                        }
+                    ))
+                )
+            )
+        ).subscribe().unsubscribe();
     }
 
     updateQuestionType(event: any, reset = false) {
@@ -177,19 +226,25 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
 
                 if (diffFields > 0) {
                     for (let i = 0; i < diffFields; i++) {
+                        let id: number;
+                        let position = i + diffFields + 1;
                         let wrightAnswer = false;
                         let label = '';
                         if (this.currentQuestion !== null && this.currentQuestion.propositions !== undefined) {
                             const proposition = this.currentQuestion.propositions[i + currentPropFormLength];
                             if (proposition !== undefined) {
+                                id = proposition.id;
+                                position = proposition.position;
                                 wrightAnswer = proposition.wrightAnswer;
                                 label = proposition.label;
                             }
                         }
                         propArray.push(new FormGroup(
                             {
+                                id: new FormControl(id),
+                                position: new FormControl(position),
                                 wrightAnswer: new FormControl(wrightAnswer),
-                                labelProp: new FormControl(label)
+                                label: new FormControl(label)
                             }
                         ));
                     }
@@ -203,7 +258,7 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
                 for (let i = 0; i < newPropFormLength; i++) {
                     propArray.controls[i].get('wrightAnswer').setValue(false);
                     if (reset) {
-                        propArray.controls[i].get('labelProp').setValue('');
+                        propArray.controls[i].get('label').setValue('');
                     }
                 }
                 questionFormGroup.get('questionType').setValue(type);
@@ -250,85 +305,15 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
         ));
     }
 
-    onSubmitQuestion() {
-        this.questionForm$.subscribe(
-            (questionFormGroup: FormGroup) => {
-                const question = this.newQuestion;
-                question.label = questionFormGroup.get('questionLabel').value.trim();
-                question.type = questionFormGroup.get('questionType').value;
-                question.position = this.questionPosition;
-
-                if (question.label !== '') {
-                    // Check if some modification has been done on the current question
-                    const propArray = (questionFormGroup.get('propositions') as FormArray).controls;
-                    if (this.currentQuestion === null || isNaN(this.currentQuestion.id)) {
-                        this.questionStore.dispatch(CreateQuestion({question, quizId: this.currentQuizId}));
-                        this.questionStore.select(fromQuestion.selectQuestionByPosition(question.position))
-                            .pipe(
-                                skipWhile(q => q === null),
-                                take(1),
-                            )
-                        .subscribe(
-                            (q) => this.onSubmitPropositions(propArray, question.position, q.id)
-                        );
-                    } else {
-                        if (this.currentQuestion.label !== question.label || this.currentQuestion.type !== question.type) {
-                            question.id = this.currentQuestion.id;
-                            this.questionStore.dispatch(UpdateQuestion({question}));
-                        }
-                        this.onSubmitPropositions(propArray, question.position, this.currentQuestion.id);
-                    }
-                }
-            }
-        );
-    }
-
-    onSubmitPropositions(propFormArray = [], questionPosition, questionId) {
-        const propFormLength = propFormArray.length;
-
-        let position = 1;
-        for (let index = 0; index < propFormLength; index++) {
-            let proposition = this.newProposition;
-            proposition.label = propFormArray[index].get('labelProp').value;
-            proposition.wrightAnswer = propFormArray[index].get('wrightAnswer').value;
-            proposition.position = position;
-            position++;
-            if (this.currentQuestion !== null && this.currentQuestion.propositions[index] !== undefined) {
-                if (this.currentQuestion.propositions[index].wrightAnswer !== proposition.wrightAnswer
-                    || this.currentQuestion.propositions[index].label !== proposition.label) {
-                    const id = this.currentQuestion.propositions[index].id;
-                    this.questionStore.dispatch(UpdateProposition(
-                        {questionPosition, id, proposition, index}));
-                }
-            } else {
-                this.questionStore.dispatch(CreateProposition(
-                    {questionId, questionPosition, proposition}));
-            }
-            proposition = undefined;
-        }
-
-        /* Delete unused propositions (for example: if switched from 'carre' to 'duo' */
-        if (this.currentQuestion !== null) {
-            const currentPropositionsLength = this.currentQuestion.propositions.length;
-            const diffNbProposition = currentPropositionsLength - propFormLength;
-            if (diffNbProposition > 0) {
-                for (let i = propFormLength; i < currentPropositionsLength; i++) {
-                    this.questionStore.dispatch(DeleteProposition(
-                        {questionPosition, propositionId: this.currentQuestion.propositions[i].id}));
-                }
-            }
-        }
-    }
-
     switchQuestion(e: Event) {
-        this.onSubmitQuestion();
+        // this.onSubmitQuestion();
 
         // @ts-ignore
         const id = e.currentTarget.id;
         if (id === 'prev') {
-            this.quizStore.dispatch(questionAction.DecrementPosition());
+            this.questionStore.dispatch(DecrementPosition());
         } else if (id === 'next') {
-            this.quizStore.dispatch(questionAction.IncrementPosition());
+            this.questionStore.dispatch(IncrementPosition());
         }
 
         this.initFormQuestion();

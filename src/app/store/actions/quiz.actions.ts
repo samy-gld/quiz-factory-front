@@ -10,14 +10,9 @@ export const LoadQuizzesSuccess = createAction(
     props<{quizzes: Quiz[]}>()
 );
 
-export const LoadQuiz = createAction(
-    '[Quiz] Load a Quiz',
-    props<{id: number}>()
-);
-
-export const LoadQuizSuccess = createAction(
-    '[Quiz] Load a Quiz Success',
-    props<{quiz: Quiz}>()
+export const LoadQuizzesError = createAction(
+    '[Quiz] Load Quizzes Error',
+    props<{error: any}>()
 );
 
 export const DeleteQuiz = createAction(
@@ -30,6 +25,11 @@ export const DeleteQuizSuccess = createAction(
     props<{id: number}>()
 );
 
+export const DeleteQuizError = createAction(
+    '[Quiz] Delete Quiz Error',
+    props<{error: any}>()
+);
+
 export const CreateQuiz = createAction(
     '[Quiz] Create a Quiz',
     props<{quiz: Quiz}>()
@@ -40,9 +40,24 @@ export const CreateQuizSuccess = createAction(
     props<{quiz: Quiz}>()
 );
 
+export const CreateQuizError = createAction(
+    '[Quiz] Create Quiz Error',
+    props<{error: any}>()
+);
+
+export const Login = createAction(
+    '[Authentication] Authenticate user'
+);
+
+export const Logout = createAction(
+    '[Authentication] Disconnect user'
+);
+
 const actions = union({
-  LoadQuizzes, LoadQuizzesSuccess, LoadQuiz, LoadQuizSuccess,
-  CreateQuiz, CreateQuizSuccess, DeleteQuiz, DeleteQuizSuccess
+    LoadQuizzes, LoadQuizzesSuccess, LoadQuizzesError,
+    CreateQuiz, CreateQuizSuccess, CreateQuizError,
+    DeleteQuiz, DeleteQuizSuccess, DeleteQuizError,
+    Login, Logout
 });
 
 export type ActionsUnion = typeof actions;

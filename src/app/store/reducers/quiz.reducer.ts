@@ -1,18 +1,22 @@
 import { Quiz } from '../../model/IQuiz';
-import {CreateQuizSuccess, DeleteQuizSuccess, LoadQuiz, LoadQuizSuccess, LoadQuizzes, LoadQuizzesSuccess} from '../actions/quiz.actions';
+import {
+    CreateQuizSuccess, DeleteQuizSuccess,
+    LoadQuizzes, LoadQuizzesSuccess,
+    Login, Logout
+} from '../actions/quiz.actions';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 import { createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
 
 export interface QuizState  extends EntityState<Quiz> {
-    currentQuiz: Quiz | null;
     loading: boolean;
+    isAuthenticated: boolean;
 }
 
 export const quizAdapter: EntityAdapter<Quiz> = createEntityAdapter<Quiz>();
 
 export const initialQuizState: QuizState = quizAdapter.getInitialState({
-    currentQuiz: null,
-    loading: false
+    loading: false,
+    isAuthenticated: false
 });
 
 /**** Selectors ****/
@@ -29,14 +33,11 @@ export const {
     selectTotal: countQuizzes
 } = quizAdapter.getSelectors(selectAllQuizzess);
 
-export const getCurrentQuiz = (state: QuizState): Quiz => state.currentQuiz;
-export const selectCurrentQuiz = createSelector(selectQuizState, getCurrentQuiz);
-
 export const getLoading = (state: QuizState): boolean => state.loading;
 export const selectLoading = createSelector(selectQuizState, getLoading);
 
-export const getCurrentQuizStatus = (state: QuizState): string => state.currentQuiz.status;
-export const selectCurrentQuizStatus = createSelector(selectQuizState, getCurrentQuizStatus);
+export const getIsAuthenticated = (state: QuizState): boolean => state.isAuthenticated;
+export const selectIsAuthenticated = createSelector(selectQuizState, getIsAuthenticated);
 
 /**** Reducer ****/
 export const quizReducer = createReducer(
@@ -50,30 +51,25 @@ export const quizReducer = createReducer(
     on(LoadQuizzesSuccess,
         (state, {quizzes}) => quizAdapter.addMany(quizzes, {
             ...state,
-            currentQuiz: null,
             loading: false
         })
     ),
     on(CreateQuizSuccess,
-        (state, {quiz}) => quizAdapter.addOne(quiz, {
-            ...state,
-            currentQuiz: quiz,
-        })
+        (state, {quiz}) => quizAdapter.addOne(quiz, state)
     ),
     on(DeleteQuizSuccess,
-        (state, {id}) => quizAdapter.removeOne(id, {
+        (state, {id}) => quizAdapter.removeOne(id, state)
+    ),
+    on(Login,
+        state => ({
             ...state,
-            currentQuiz: null,
+            isAuthenticated: true
         })
     ),
-    on(LoadQuiz,
-        (state) => ({...state, loading: true})
-    ),
-    on(LoadQuizSuccess,
-        (state, {quiz}) => ({
+    on(Logout,
+        state => ({
             ...state,
-            currentQuiz: quiz,
-            loading: false
+            isAuthenticated: false
         })
     )
 );

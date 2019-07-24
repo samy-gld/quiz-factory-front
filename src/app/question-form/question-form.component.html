@@ -4,69 +4,76 @@
       <path d="M0 0h24v24H0z" fill="none" />
     </svg>
 </div>
-<form *ngIf="!(loadingQuestion | async) && (questionForm$ |async)" [formGroup]="questionForm$ | async" (ngSubmit)="onSubmitQuestion()">
-  <div class="question">
+
+<div *ngIf="!(loadingQuestion | async) && (questionForm$ | async)" class="row justify-content-center d-flex">
     <div class="icons-prev-next">
-      <div class="main__item">
-        <svg (click)="questionPosition > 1 && switchQuestion($event)" id="prev" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-labelledby="circleArrowLeftIconTitle">
-          <title id="circleArrowLeftIconTitle">Arrow Left</title>
-          <path d="M10.5 15l-3-3 3-3"></path>
-          <path d="M16.5 12H9"></path>
-          <path stroke-linecap="round" d="M7.5 12H9"></path>
-          <circle cx="12" cy="12" r="10"></circle>
-        </svg>
-      </div>
-      
-      <h2>Question n°{{ questionPosition }}</h2>
-      
-      <div class="main__item">
-        <svg (click)="switchQuestion($event)" id="next" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-labelledby="circleArrowRightIconTitle">
-          <title id="circleArrowRightIconTitle">Arrow Right</title>
-          <path d="M13.5 9l3 3-3 3"></path>
-          <path d="M7.5 12H15"></path>
-          <path stroke-linecap="round" d="M16.5 12H15"></path>
-          <circle cx="12" cy="12" r="10"></circle>
-        </svg>
-      </div>
+        <div class="main__item">
+            <svg (click)="questionPosition > 1 && switchQuestion($event)" id="prev" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-labelledby="circleArrowLeftIconTitle">
+                <title id="circleArrowLeftIconTitle">Arrow Left</title>
+                <path d="M10.5 15l-3-3 3-3"></path>
+                <path d="M16.5 12H9"></path>
+                <path stroke-linecap="round" d="M7.5 12H9"></path>
+                <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+        </div>
+
+        <h2>Question n°{{ questionPosition }}</h2>
+
+        <div class="main__item">
+            <svg (click)="switchQuestion($event)" id="next" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-labelledby="circleArrowRightIconTitle">
+                <title id="circleArrowRightIconTitle">Arrow Right</title>
+                <path d="M13.5 9l3 3-3 3"></path>
+                <path d="M7.5 12H15"></path>
+                <path stroke-linecap="round" d="M16.5 12H15"></path>
+                <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<form *ngIf="!(loadingQuestion | async) && (questionForm$ | async)" [formGroup]="questionForm$ | async"
+      name="questionForm" class="row d-flex justify-content-around">
+
+    <div class="row">
+        <div class="form-group col-12 m-0 p-0">
+            <div class="form-group">
+                <label class="text-center" for="questionLabel"><h4>Intitulé de la question</h4></label>
+                <textarea class="form-control input-md" style="resize: none;" id="questionLabel" formControlName="questionLabel"></textarea>
+            </div>
+            <div class="form-group d-flex">
+                <div class="custom-control custom-radio custom-control-inline col-4">
+                    <input id="duo" type="radio" value="duo" name="questionType" class="custom-control-input"
+                           formControlName="questionType" (change)="updateQuestionType($event)" >
+                    <label class="custom-control-label" for="duo">Duo</label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline col-4">
+                    <input id="carre" type="radio" value="carre" name="questionType" class="custom-control-input"
+                            formControlName="questionType" (change)="updateQuestionType($event)" >
+                    <label class="custom-control-label" for="carre">Carre</label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline col-4">
+                  <input id="qcm" type="radio" value="qcm" name="questionType" class="custom-control-input"
+                            formControlName="questionType" (change)="updateQuestionType($event)" >
+                  <label class="custom-control-label" for="qcm">QCM</label>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <label for="questionLabel">Intitulé de la question</label>
-    <textarea id="questionLabel" formControlName="questionLabel"></textarea>
-
-    <br>
-
-    <div class="row gtr-uniform">
-        <!-- Break -->
-        <div class="col-4 col-12-small">
-            <input id="duo" type="radio" value="duo" name="questionType"
-                    formControlName="questionType" (change)="updateQuestionType($event)" >
-            <label for="duo">Duo</label>
-        </div>
-        <div class="col-4 col-12-small">
-            <input id="carre" type="radio" value="carre" name="questionType"
-                    formControlName="questionType" (change)="updateQuestionType($event)" >
-            <label for="carre">Carre</label>
-        </div>
-        <div class="col-4 col-12-small">
-          <input id="qcm" type="radio" value="qcm" name="questionType"
-                    formControlName="questionType" (change)="updateQuestionType($event)" >
-          <label for="qcm">QCM</label>
-      </div>
-    </div>
-  </div>
-
-  <div class="proposition"  formArrayName="propositions">
-      <h2>Propositions</h2>
+  <div class="row d-block"  formArrayName="propositions">
+      <h4 class="text-center">Propositions</h4>
       
       <div style="padding-top: 1em" *ngFor="let propositionGroup of (propositions | async); let i = index">
 
         <div class="prop-display" [formGroupName]="i">
-          <div>
-            <input type="checkbox" [attr.id]="'check_' + i" name="wrightAnswer" formControlName="wrightAnswer"
-                (change)="uncheckOthers($event)" >
-            <label [attr.for]="'check_' + i"></label>
+            <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" (change)="uncheckOthers($event)"
+                   [attr.id]="'check_' + i" name="wrightAnswer" formControlName="wrightAnswer">
+            <label class="custom-control-label" [attr.for]="'check_' + i"></label>
           </div>
-          <input type="text" formControlName="labelProp" />
+          <input class="form-control" type="text" formControlName="label" />
+          <input type="hidden" formControlName="id" />
+          <input type="hidden" formControlName="position" />
         </div>
       </div>
   </div>

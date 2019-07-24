@@ -1,38 +1,56 @@
-<!-- Wrapper -->
-<div id="wrapper">
-    <!-- Main -->
-    <div id="main">
-        <div class="inner">
+<!--Navbar-->
+<nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #263238">
 
-            <!-- Header -->
-            <header id="header">
-                <h4 *ngIf="currentQuiz | async">{{ (currentQuiz | async).name }}</h4>
-                <h4 class="icons">{{ action }}</h4>
-            </header>
-        </div>
+    <!-- Navbar brand -->
+    <a class="navbar-brand" routerLink="/">{{ title }}</a>
 
-        <div id="appli">
-            <router-outlet></router-outlet>
-        </div>
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="basicExampleNav">
 
-        <div id="sidebar">
-            <div class="inner">
-
-                <!-- Menu -->
-                <nav id="menu">
-                    <header class="major">
-                        <h2>{{ title }}</h2>
-                    </header>
-                    <ul>
-                        <li routerLinkActive="active"><a routerLink="quiz/list">Mes Quiz</a></li>
-                        <li routerLinkActive="active"><a routerLink="quiz/edit">Créer un Quiz</a></li>
-
-                    </ul>
-                </nav>
-                <a *ngIf="currentQuiz | async"
-                   [routerLink]="['question/edit/', (currentQuiz | async).id]" [queryParams]="{ validation: true }"
-                   class="button primary fit icon solid fa-download">Valider ce quiz</a>
-            </div>
-        </div>
+        <!-- Links -->
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" routerLink="/">Accueil <span class="sr-only">(current)</span></a>
+            </li>
+            <li *ngIf="isAuthenticated" class="nav-item" routerLinkActive="active">
+                <a class="nav-link" routerLink="quiz/list">Mes Quiz</a>
+            </li>
+            <li *ngIf="isAuthenticated" class="nav-item" routerLinkActive="active">
+                <a class="nav-link" routerLink="quiz/edit">Créer un Quiz</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav">
+            <li *ngIf="!(isAuthenticated)" class="nav-item" routerLinkActive="active">
+                <a class="nav-link" routerLink="login">S'identifier</a>
+            </li>
+            <li *ngIf="!(isAuthenticated)" class="nav-item" routerLinkActive="active">
+                <a class="nav-link" routerLink="register">S'inscrire</a>
+            </li>
+            <li *ngIf="isAuthenticated" class="nav-item" routerLinkActive="active">
+                <a class="nav-link" routerLink="logout">Se déconnecter</a>
+            </li>
+        </ul>
+        <!-- Links -->
     </div>
+    <!-- Collapsible content -->
+</nav>
+<!--/.Navbar-->
+
+<div *ngIf="home | async" id="home" class="container-fluid m-0 p-0 overflow-hidden" style="width: 100%">
+    <section style="background-color: #e0ebe8; color: green">
+        <h1>En famille</h1>
+        <p>Amusez-vous à tester vos enfants... ou vos parents !!</p>
+    </section>
+    <section style="background-color: white">
+        <h1>Entre amis</h1>
+        <p>Défiez vos amis sur les sujets du moments !!</p>
+    </section>
+    <section style="background-color: #e0ebe8; color: green">
+        <h1>Au travail</h1>
+        <p>Vérifiez les connaissances de vos salariés... actuels et futurs !!</p>
+    </section>
+</div>
+
+<div *ngIf="!(home | async)" id="main" class="container-fluid p-4 overflow-hidden">
+    <router-outlet></router-outlet>
 </div>

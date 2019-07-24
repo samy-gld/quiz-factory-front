@@ -1,0 +1,32 @@
+<form class="form-horizontal col-4 offset-4" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <!-- Form Name -->
+    <h2>Formulaire d'inscription</h2>
+    <br>
+    <!-- Text input-->
+    <div class="form-group">
+        <label class="control-label" for="username">Nom d'utilisateur</label>
+        <input formControlName="username" id="username" name="username" type="text" class="form-control input-md">
+    </div>
+
+    <!-- Text input-->
+    <div class="form-group">
+        <label class="control-label" for="email">Email</label>
+        <input formControlName="email" id="email" name="email" type="text" class="form-control input-md">
+    </div>
+
+    <!-- Password input-->
+    <div class="form-group">
+        <label class="control-label" for="password">Mot de passe</label>
+        <input formControlName="password" id="password" name="password" type="password" class="form-control input-md">
+    </div>
+
+    <!-- Button -->
+    <div class="form-group d-flex align-items-baseline">
+        <button type="submit" class="btn btn-primary">S'inscrire</button>
+        <p>
+            <span>&nbsp;Vous êtes déjà inscrit ?&nbsp;</span>
+            <a routerLink="../login">Connectez-vous!</a>
+        </p>
+    </div>
+
+</form>

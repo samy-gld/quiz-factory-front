@@ -1,13 +1,8 @@
 :host {
-    display: flex;
     width: 100%;
 }
 
-form {
-    display: flex;
-}
-
-form .icons-prev-next {
+.icons-prev-next {
     display: flex;
 }
 
@@ -35,21 +30,17 @@ svg:hover{
     cursor: pointer;
 }
 
-.question {
-    padding-right: 2em;
-}
-
 .prop-display {
     display: flex; 
     align-items: center;
 }
 
 input[type="text"] {
-    width: 410px;
+    width: 500px;
 }
 
 textarea {
-    width: 410px;
+    width: 500px;
     height: 120px;
 }
 
