@@ -41,7 +41,38 @@ export const CreateQuizSuccess = createAction(
 );
 
 export const CreateQuizError = createAction(
-    '[Quiz] Create Quiz Error',
+    '[Quiz] Create a Quiz Error',
+    props<{error: any}>()
+);
+
+export const UpdateQuiz = createAction(
+    '[Quiz] Update a Quiz',
+    props<{quiz: Quiz}>()
+);
+
+export const UpdateQuizSuccess = createAction(
+    '[Quiz] Update a Quiz Success',
+    props<{quiz: Quiz}>()
+);
+
+export const UpdateQuizError = createAction(
+    '[Quiz] Update a Quiz Error',
+    props<{error: any}>()
+);
+
+
+export const FinalizeQuiz = createAction(
+    '[Quiz] Finalize Quiz (status = finalized)',
+    props<{id: number}>()
+);
+
+export const FinalizeQuizSuccess = createAction(
+    '[Quiz] Finalize Quiz Success',
+    props<{quiz: Quiz}>()
+);
+
+export const FinalizeQuizError = createAction(
+    '[Quiz] Finalize Quiz Error',
     props<{error: any}>()
 );
 
@@ -56,7 +87,9 @@ export const Logout = createAction(
 const actions = union({
     LoadQuizzes, LoadQuizzesSuccess, LoadQuizzesError,
     CreateQuiz, CreateQuizSuccess, CreateQuizError,
+    UpdateQuiz, UpdateQuizSuccess, UpdateQuizError,
     DeleteQuiz, DeleteQuizSuccess, DeleteQuizError,
+    FinalizeQuiz, FinalizeQuizSuccess, FinalizeQuizError,
     Login, Logout
 });
 

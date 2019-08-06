@@ -1,0 +1,33 @@
+<div *ngIf="loadingQuiz" fill="#d2d7d9" style="width: 100%; padding-top: 25vh; padding-left: 45vw; display: flex; align-content: center">
+    <svg id="icon-reload" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z" />
+        <path d="M0 0h24v24H0z" fill="none" />
+    </svg>
+</div>
+<div *ngIf="!loadingQuiz" class="row justify-content-center">
+    <form (ngSubmit)="f.form.valid && onSubmit(f)" #f="ngForm">
+        <h2>Définissez votre Quiz</h2>
+        <br>
+        <div class="form-group">
+            <label class="control-label" for="quizName">Nom du Quiz</label>
+            <input class="form-control input-md" id="quizName" type="text" name="quizName" [(ngModel)]="quiz.name" #quizName="ngModel"
+                   required minlength="4" />
+            <div *ngIf="f.submitted && (quizName.dirty || quizName.touched) && quizName.errors"
+                 class="alert alert-danger">
+                <div *ngIf="quizName.errors.required">Champ obligatoire</div>
+                <div *ngIf="quizName.errors.minlength && !quizName.errors.required">Au moins 4 caractères</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="quizDesc">Description</label>
+            <input class="form-control input-md" id="quizDesc" type="text" name="quizDesc" [(ngModel)]="quiz.description" #quizDesc="ngModel"
+                   required minlength="4" />
+            <div *ngIf="f.submitted && (quizDesc.dirty || quizDesc.touched) && quizDesc.errors"
+                 class="alert alert-danger">
+                <div *ngIf="quizDesc.errors.required">Champ obligatoire</div>
+                <div *ngIf="quizDesc.errors.minlength && !quizDesc.errors.required">Au moins 4 caractères</div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="buttonDisabled">Enregistrer</button>
+    </form>
+</div>

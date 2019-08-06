@@ -1,0 +1,129 @@
+:host {
+    width: 100%;
+}
+
+#divButtons {
+    position: absolute;
+    right: 10px;
+}
+
+#separation {
+    width: 4px;
+    height: 0;
+}
+
+.modal-header-validation {
+    background-color: #33b5e5;
+}
+
+.modal-header-violation {
+    background-color: #FF3547;
+}
+
+.icons-prev-next {
+    display: flex;
+}
+
+svg:hover{
+    cursor: pointer;
+}
+
+.prop-display {
+    display: flex; 
+    align-items: center;
+}
+
+input[type="text"] {
+    width: 43vw;
+}
+
+textarea {
+    width: 43vw;
+    height: 120px;
+}
+
+svg {
+    text-align: center;
+    margin: auto;
+}
+
+#icon-reload {
+    -webkit-animation: reload 2s steps(4) infinite;
+    animation: reload 2s steps(4) infinite;
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    width: 40px;
+    height: 40px;
+  }
+
+
+  @-webkit-keyframes reload {
+    0% {
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+
+    100% {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes reload {
+    0% {
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+
+    100% {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+
+    @media screen and (max-width: 700px) {
+        #divButtons {
+            position: relative;
+        }
+
+        #head {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+    
+    @media screen and (max-width: 570px) {
+        input[type="text"] {
+            width: 90vw;
+        }
+        
+        textarea {
+            width: 90vw;
+            height: 100px;
+        }
+        
+        #previewButton {
+            margin: 0 0 4px 0;
+        }
+    }
+
+.arrow {
+    -webkit-appearance: none;
+    background: transparent;
+    border: 0;
+    outline:0;
+}
+
+.arrow {
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+}
+
+.left:hover polyline, .right:hover polyline{
+    stroke-width: 10;
+}
+
+polyline {
+    transition: all 250ms ease-in-out;
+}

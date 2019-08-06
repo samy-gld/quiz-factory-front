@@ -115,6 +115,11 @@ export const DecrementPosition = createAction(
     '[Question] Decrement currentQuestionPosition'
 );
 
+export const GoToPosition = createAction(
+    '[Question] Modify currentQuestionPosition',
+    props<{position: number}>()
+);
+
 export const UpdateQuestionForm = createAction(
     '[QuestionForm] Update questionForm state',
     props<{question: Question}>()
@@ -136,7 +141,8 @@ const actions = union({
   CreateProposition, CreatePropositionSuccess, CreatePropositionError,
   UpdateProposition, UpdatePropositionSuccess, UpdatePropositionError,
   DeleteProposition, DeletePropositionSuccess, DeletePropositionError,
-  IncrementPosition, DecrementPosition, UpdateQuestionForm, ResetErrorSaving, UnsetAll
+  IncrementPosition, DecrementPosition, GoToPosition, UpdateQuestionForm,
+  ResetErrorSaving, UnsetAll
 });
 
 export type ActionsUnion = typeof actions;

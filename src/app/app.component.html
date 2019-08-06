@@ -1,33 +1,32 @@
 <!--Navbar-->
-<nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #263238">
-
+<nav class="navbar navbar-expand-sm navbar-dark bg-info">
     <!-- Navbar brand -->
     <a class="navbar-brand" routerLink="/">{{ title }}</a>
 
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" (click)="isCollapsed = !isCollapsed" aria-expanded="false" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
     <!-- Collapsible content -->
-    <div class="collapse navbar-collapse" id="basicExampleNav">
-
+    <div class="collapse navbar-collapse" id="navbarToggler" [collapse]="isCollapsed">
         <!-- Links -->
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link" routerLink="/">Accueil <span class="sr-only">(current)</span></a>
+            <li *ngIf="isAuthenticated | async" class="nav-item" routerLinkActive="active" data-toggle="collapse" data-target=".navbar-collapse.show">
+                <a class="nav-link" routerLink="quiz/list" (click)="isCollapsed = !isCollapsed">Mes Quiz</a>
             </li>
-            <li *ngIf="isAuthenticated" class="nav-item" routerLinkActive="active">
-                <a class="nav-link" routerLink="quiz/list">Mes Quiz</a>
-            </li>
-            <li *ngIf="isAuthenticated" class="nav-item" routerLinkActive="active">
-                <a class="nav-link" routerLink="quiz/edit">Créer un Quiz</a>
+            <li *ngIf="isAuthenticated | async" class="nav-item" routerLinkActive="active" data-toggle="collapse" data-target=".navbar-collapse.show">
+                <a class="nav-link" routerLink="quiz/edit" (click)="isCollapsed = !isCollapsed">Créer un Quiz</a>
             </li>
         </ul>
+
         <ul class="navbar-nav">
-            <li *ngIf="!(isAuthenticated)" class="nav-item" routerLinkActive="active">
-                <a class="nav-link" routerLink="login">S'identifier</a>
+            <li *ngIf="!(isAuthenticated | async)" class="nav-item" routerLinkActive="active" data-toggle="collapse" data-target=".navbar-collapse.show">
+                <a class="nav-link" routerLink="login" (click)="isCollapsed = !isCollapsed">S'identifier</a>
             </li>
-            <li *ngIf="!(isAuthenticated)" class="nav-item" routerLinkActive="active">
-                <a class="nav-link" routerLink="register">S'inscrire</a>
+            <li *ngIf="!(isAuthenticated | async)" class="nav-item" routerLinkActive="active" data-toggle="collapse" data-target=".navbar-collapse.show">
+                <a class="nav-link" routerLink="register" (click)="isCollapsed = !isCollapsed">S'inscrire</a>
             </li>
-            <li *ngIf="isAuthenticated" class="nav-item" routerLinkActive="active">
-                <a class="nav-link" routerLink="logout">Se déconnecter</a>
+            <li *ngIf="isAuthenticated | async" class="nav-item" routerLinkActive="active" data-toggle="collapse" data-target=".navbar-collapse.show">
+                <a class="nav-link" routerLink="logout" (click)="isCollapsed = !isCollapsed">Se déconnecter</a>
             </li>
         </ul>
         <!-- Links -->
@@ -36,7 +35,7 @@
 </nav>
 <!--/.Navbar-->
 
-<div *ngIf="home | async" id="home" class="container-fluid m-0 p-0 overflow-hidden" style="width: 100%">
+<div *ngIf="home" id="home" class="container-fluid m-0 p-0" style="width: 100%">
     <section style="background-color: #e0ebe8; color: green">
         <h1>En famille</h1>
         <p>Amusez-vous à tester vos enfants... ou vos parents !!</p>
@@ -51,6 +50,6 @@
     </section>
 </div>
 
-<div *ngIf="!(home | async)" id="main" class="container-fluid p-4 overflow-hidden">
+<div *ngIf="!(home)" id="main" class="container-fluid p-4">
     <router-outlet></router-outlet>
 </div>

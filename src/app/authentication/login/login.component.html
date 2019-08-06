@@ -1,0 +1,29 @@
+<div class="row justify-content-center">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <!-- Form Name -->
+        <h2>&nbsp;&nbsp;&nbsp;&nbsp;Authentification&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+        <br>
+        <!-- Text input-->
+        <div class="form-group">
+            <label for="username">Identifiant (Nom d'utilisateur ou email)</label>
+            <input class="form-control input-md" formControlName="username" id="username" name="username" type="text">
+            <div *ngIf="username.invalid && isSubmitted" class="alert alert-danger">
+                <div *ngIf="username.errors.required">Champs obligatoire</div>
+            </div>
+        </div>
+
+        <!-- Password input-->
+        <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <input class="form-control input-md" formControlName="password" id="password" name="password" type="password">
+            <div *ngIf="password.invalid && isSubmitted" class="alert alert-danger">
+                <div *ngIf="password.errors.required">Champs obligatoire</div>
+            </div>
+        </div>
+
+        <!-- Button -->
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary" [disabled]="buttonDisabled">Se connecter</button>
+        </div>
+    </form>
+</div>

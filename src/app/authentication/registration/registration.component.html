@@ -1,0 +1,68 @@
+<div *ngIf="!registered" class="row justify-content-center">
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <!-- Form Name -->
+        <h2>Formulaire d'inscription</h2>
+        <br>
+        <!-- Text input-->
+        <div class="form-group">
+            <label for="username">Nom d'utilisateur</label>
+            <input class="form-control input-md" formControlName="username" id="username" name="username" type="text">
+            <div *ngIf="isUsernameUsed" class="alert alert-danger">Nom déjà utilisé</div>
+            <div *ngIf="username.invalid && (username.dirty || username.touched) && isSubmitted" class="alert alert-danger">
+                <div *ngIf="username.errors.required">Champs obligatoire</div>
+                <div *ngIf="username.errors.minlength && !username.errors.required">Le nom doit comporter au moins 4 caractères</div>
+            </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input class="form-control input-md" formControlName="email" id="email" name="email" type="text">
+            <div *ngIf="isEmailUsed" class="alert alert-danger">Email déjà utilisé</div>
+            <div *ngIf="email.invalid && (email.dirty || email.touched) && isSubmitted" class="alert alert-danger">
+                <div *ngIf="email.errors.required">Champs obligatoire</div>
+                <div *ngIf="email.errors.invalidEmail && !email.errors.required">Email invalide</div>
+            </div>
+        </div>
+
+        <!-- Password input-->
+        <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <input class="form-control input-md" formControlName="password" id="password" name="password" type="password">
+            <div *ngIf="password.invalid && (password.dirty || password.touched) && isSubmitted" class="alert alert-danger">
+                <div *ngIf="password.errors.required">Champs obligatoire</div>
+                <div *ngIf="password.errors.minlength && !password.errors.required">Le mot de passe doit comporter au moins 4 caractères</div>
+            </div>
+        </div>
+
+        <!-- Confirm password input -->
+        <div class="form-group">
+            <label for="confirmPassword">Confirmation mot de passe</label>
+            <input class="form-control input-md" appPasswordMatch="password" formControlName="confirmPassword" id="confirmPassword" name="confirmPassword" type="password">
+            <div *ngIf="confirmPassword.invalid && (confirmPassword.dirty || confirmPassword.touched) && isSubmitted" class="alert alert-danger">
+                <div *ngIf="confirmPassword.errors.required">Champs obligatoire</div>
+                <div *ngIf="confirmPassword.errors.noMatch && !confirmPassword.errors.required">Les mots de passe doivent être identiques</div>
+            </div>
+        </div>
+
+        <!-- Button -->
+        <div class="form-group d-flex align-items-baseline">
+            <button type="submit" class="btn btn-primary" [disabled]="buttonDisabled">S'inscrire</button>
+            <p>
+                <span>&nbsp;Vous êtes déjà inscrit ?&nbsp;</span>
+                <a routerLink="../login">Connectez-vous!</a>
+            </p>
+        </div>
+
+    </form>
+</div>
+
+<!-- Ask for confirmation after registration (by following email link) -->
+<ng-template [ngIf]="registered" #registrationTemplate>
+    <div class="row justify-content-center d-block">
+        <h2>Confirmation d'inscription</h2>
+        <p>Bienvenue {{ username.value }} !!</p>
+        <p>Un mail vous a été envoyé pour confimer définitivement votre inscription.</p>
+        <p>Veuillez cliquer sur le lien indiqué dans ce mail. Vous pourrez ensuite commencer à créer vos Quizzes</p>
+    </div>
+</ng-template>

@@ -1,0 +1,151 @@
+<div *ngIf="loadingQuestion | async" style="width: 100%; padding-top: 25vh; display: flex; align-content: center">
+    <svg id="icon-reload" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z" />
+      <path d="M0 0h24v24H0z" fill="none" />
+    </svg>
+</div>
+
+<div *ngIf="!(loadingQuestion | async) && (currentQuiz | async)" class="d-flex" id="head">
+    <h2>{{ (currentQuiz | async).name }}</h2>
+    <div id="divButtons" class="d-flex">
+        <button id="previewButton" class="btn btn-info btn-dimension" (click)="onPreview()">Prévisualiser</button>
+        <span id="separation"></span>
+        <button id="validButton" class="btn btn-info btn-dimension mr-0" (click)="onValidation()">Valider</button>
+    </div>
+</div>
+<br>
+<div *ngIf="!(loadingQuestion | async) && (questionForm$ | async)" class="row justify-content-center d-flex">
+    <div class="icons-prev-next">
+        <div class="main__item">
+            <button class="arrow left" (click)="questionPosition > 1 && onSwitchQuestion($event)" id="prev">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 50 80"  xml:space="preserve">
+                    <polyline fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" points="
+                    45.63,75.8 0.375,38.087 45.63,0.375 "/>
+                </svg>
+            </button>
+        </div>
+
+        <h2>&nbsp;Question n°{{ questionPosition }}</h2>
+
+        <div class="main__item">
+            <button class="arrow right" (click)="onSwitchQuestion($event)" id="next">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 50 80" xml:space="preserve">
+                    <polyline fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" points="
+                    0.375,0.375 45.63,38.087 0.375,75.8 "/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<form *ngIf="!(loadingQuestion | async) && (questionForm$ | async)" [formGroup]="questionForm$ | async"
+      name="questionForm" class="row d-flex justify-content-around">
+
+    <div class="row">
+        <div class="form-group col-12 m-0 p-0">
+            <div class="form-group text-center">
+                <label for="questionLabel"><h4>Intitulé de la question</h4></label>
+                <textarea class="form-control input-md" style="resize: none;" id="questionLabel" formControlName="questionLabel"></textarea>
+            </div>
+            <div class="form-group d-flex">
+                <div class="custom-control custom-radio col-4">
+                    <input id="duo" type="radio" value="duo" name="questionType" class="custom-control-input"
+                           formControlName="questionType" (change)="updateQuestionType($event)" >
+                    <label class="custom-control-label" for="duo">Duo</label>
+                </div>
+                <div class="custom-control custom-radio col-4">
+                    <input id="carre" type="radio" value="carre" name="questionType" class="custom-control-input"
+                            formControlName="questionType" (change)="updateQuestionType($event)" >
+                    <label class="custom-control-label" for="carre">Carre</label>
+                </div>
+                <div class="custom-control custom-radio col-4">
+                  <input id="qcm" type="radio" value="qcm" name="questionType" class="custom-control-input"
+                            formControlName="questionType" (change)="updateQuestionType($event)" >
+                  <label class="custom-control-label" for="qcm">QCM</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  <div class="row d-block"  formArrayName="propositions">
+      <h4 class="text-center">Propositions</h4>
+      
+      <div style="padding-top: 1em" *ngFor="let propositionGroup of (propositions | async); let i = index">
+
+        <div class="prop-display" [formGroupName]="i">
+            <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" (change)="uncheckOthers($event)"
+                   [attr.id]="'check_' + i" name="wrightAnswer" formControlName="wrightAnswer">
+            <label class="custom-control-label" [attr.for]="'check_' + i"></label>
+          </div>
+          <input class="form-control" type="text" formControlName="label" />
+          <input type="hidden" formControlName="id" />
+          <input type="hidden" formControlName="position" />
+        </div>
+      </div>
+  </div>
+</form>
+
+<!-- Confirm validation modal template -->
+<ng-template #validationTemplate>
+    <div class="modal-header modal-header-validation">
+        <h4 class="modal-title pull-left text-white">Validation du Quiz</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+            <span class="text-white" aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body text-center">
+        <span class="mt-2">Un quiz validé ne peut plus être modifié, êtes-vous sûr ?</span>
+        <br><br>
+        <div>
+            <button type="button" class="btn btn-primary btn-width mr-1" aria-label="Valid" (click)="onConfirmValidation()">
+                <span aria-hidden="true">Valider</span>
+            </button>
+            <button type="button" class="btn btn-danger btn-width" aria-label="Close" (click)="onCancelValidation()">
+                <span aria-hidden="true">Annuler</span>
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Violation modal template (after validation) -->
+<ng-template #violationTemplate>
+    <div class="modal-header modal-header-violation">
+        <h4 class="modal-title pull-left text-white">Erreur lors de la validation du Quiz :</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+            <span class="text-white" aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div *ngFor="let violation of violations">
+            <span><a [routerLink]="" (click)="onGoToQuestion(violation.position)">Question {{ violation.position }} :</a> {{ violation.error }}</span>
+        </div>
+        <br>
+        <div class="text-center">
+            <button type="button" class="btn btn-primary btn-width" aria-label="Close" (click)="bsModalRef.hide()">
+                <span aria-hidden="true">OK</span>
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Violation modal template (after validation) -->
+<ng-template #errorTemplate>
+    <div class="modal-header modal-header-violation">
+        <h4 class="modal-title pull-left text-white">Attention !!</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+            <span class="text-white" aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div>
+            Vous devez d'abord saisir une question avant de pouvoir effectuer cette action
+        </div>
+        <br>
+        <div class="text-center">
+            <button type="button" class="btn btn-primary btn-width" aria-label="Close" (click)="bsModalRef.hide()">
+                <span aria-hidden="true">C'est compris</span>
+            </button>
+        </div>
+    </div>
+</ng-template>

@@ -2,6 +2,7 @@
     position: fixed;
     width: 100%;
     min-height: 10vh;
+    z-index: 1;
 }
 
 section {
@@ -17,6 +18,11 @@ section {
 #main {
     position: absolute;
     top: 10vh;
-    height: 90vh;
-    background-color: #e0ebe8;
+    min-height: 90vh;
+    background: rgb(66,155,172);
+    background: -moz-linear-gradient(0deg, rgba(66,155,172,1) 0%, rgba(164,219,225,1) 47%);
+    background: -webkit-linear-gradient(0deg, rgba(66,155,172,1) 0%, rgba(164,219,225,1) 47%);
+    background: linear-gradient(0deg, rgba(66,155,172,1) 0%, rgba(164,219,225,1) 47%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#429bac",endColorstr="#a4dbe1",GradientType=1);
+    color: #2C6383;
 }

@@ -1,0 +1,20 @@
+<div *ngIf="!loaded" fill="#d2d7d9" style="width: 100%; padding-top: 25vh; display: flex; align-content: center">
+    <svg id="icon-reload" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z" />
+        <path d="M0 0h24v24H0z" fill="none" />
+    </svg>
+</div>
+
+<ng-template [ngIf]="loaded && success" #successTemplate>
+    <h2>Félicitations !!!</h2>
+    <p>...et bienvenue sur Quiz Factory !</p>
+    <p>Cliquez sur le lien en bas de cette page pour entrer vos données de connexion.</p>
+    <p>Vous serez ensuite redirigé vers la page de création de votre Quiz.</p>
+    <a routerLink="quiz/edit">Créer votre premier quiz</a>
+</ng-template>
+
+<ng-template [ngIf]="loaded && !success" #errorTemplate>
+    <h2>Erreur dans votre lien de confirmation</h2>
+    <p>Désolé, le lien que vous avez entré n'est pas valide.</p>
+    <p>Veuillez vérifier votre mail d'inscription...</p>
+</ng-template>

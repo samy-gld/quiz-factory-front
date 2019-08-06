@@ -2,19 +2,16 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType} from '@ngrx/effects';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import {catchError, distinctUntilChanged, exhaustMap, filter, map, mergeMap, switchMap, take} from 'rxjs/operators';
-import {Proposition, Question, Quiz} from '../../model/IQuiz';
+import {catchError, distinctUntilChanged, exhaustMap, filter, map, mergeMap, switchMap, tap} from 'rxjs/operators';
+import { Proposition, Question, Quiz } from '../../model/IQuiz';
 import {
     ActionsUnion, CreateProposition, CreatePropositionError, CreatePropositionSuccess, CreateQuestion, CreateQuestionError,
     CreateQuestionSuccess, DeleteProposition, DeletePropositionError, DeletePropositionSuccess, LoadQuestionError,
     LoadQuestions, LoadQuestionsSuccess, UpdateProposition, UpdatePropositionError, UpdatePropositionSuccess,
     UpdateQuestion, UpdateQuestionError, UpdateQuestionSuccess, LoadQuiz, LoadQuizError, LoadQuizSuccess
 } from '../actions/question.actions';
-import { Store } from '@ngrx/store';
-import { QuestionState } from '../reducers/question.reducer';
 import { of } from 'rxjs';
-import {ToastrService} from 'ngx-toastr';
-import {ErrorManagerService} from '../../services/error-manager.service';
+import { ErrorManagerService } from '../../services/error-manager.service';
 
 @Injectable()
 export class QuestionEffects {
@@ -37,14 +34,8 @@ export class QuestionEffects {
             (id: number) =>
                 this.httpClient.get<Quiz>(this.ApiUrl + '/quiz/' + id)
                     .pipe(
-                        map(
-                            (quiz: Quiz) => LoadQuizSuccess({quiz})
-                        ),
-                        catchError(
-                            error => {
-                                return of(LoadQuizError(error));
-                            }
-                        )
+                        map((quiz: Quiz) => LoadQuizSuccess({quiz})),
+                        catchError(error => of(LoadQuizError(error)))
                     )
         )
     ));

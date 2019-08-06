@@ -1,13 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
-import { DynamicService } from './services/dynamic.service';
-import { Observable, of, Subscription } from 'rxjs';
-import { selectIsAuthenticated } from './store/reducers/quiz.reducer';
-import { select, Store } from '@ngrx/store';
-import { Quiz } from './model/IQuiz';
-import { Login } from './store/actions/quiz.actions';
-import {QuestionState, selectCurrentQuiz} from './store/reducers/question.reducer';
-import {AuthenticationService} from './services/authentication.service';
+import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { QuestionState } from './store/reducers/question.reducer';
+import { delay, startWith, tap } from 'rxjs/operators';
+import { AuthenticationService } from './authentication/services/authentication.service';
 
 @Component({
     selector: 'app-root',
@@ -16,34 +13,30 @@ import {AuthenticationService} from './services/authentication.service';
 })
 export class AppComponent implements OnInit {
 
-    actionSubscription: Subscription;
     title = 'Quiz Factory';
-    action = '';
-    currentQuiz: Observable<Quiz> = of({id: null, name: '', description: ''} as Quiz);
-    isAuthenticated: boolean;
-    home: Observable<boolean>;
+    isAuthenticated: Observable<boolean>;
+    home: boolean;
+    isCollapsed = true;
 
-    constructor(private dynamicService: DynamicService,
-                private questionStore: Store<QuestionState>,
+    constructor(private questionStore: Store<QuestionState>,
                 private activatedRoute: ActivatedRoute,
                 private router: Router,
                 private authenticationService: AuthenticationService) {}
 
     ngOnInit(): void {
-        const isAuth: boolean = this.authenticationService.isLoggedIn();
-        this.authenticationService.isAuthenticated.next(isAuth);
-        this.authenticationService.isAuthenticated.subscribe(
-            value => this.isAuthenticated = value
-        );
-        this.actionSubscription = this.dynamicService.actionSubject.subscribe(
-            (action) => this.action = action
-        );
-        this.currentQuiz = this.questionStore.pipe(select(selectCurrentQuiz));
-        this.router.events.subscribe(
-            event => {
+        this.isAuthenticated = this.authenticationService.isAuthenticated.asObservable()
+            .pipe(
+                startWith(false),
+                delay(0)
+            );
+
+        this.router.events.pipe(
+            startWith(true),
+            delay(0),
+            tap(event => {
                     if (event instanceof NavigationStart) {
-                        this.home = of(event.url === '/');
+                        this.home = event.url === '/';
                     }
-            });
+           })).subscribe();
     }
 }

@@ -1,0 +1,48 @@
+<div *ngIf="wait | async" fill="#d2d7d9" style="width: 100%; padding-top: 25vh; display: flex; align-content: center">
+    <svg id="icon-reload" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z" />
+        <path d="M0 0h24v24H0z" fill="none" />
+    </svg>
+</div>
+<h2 *ngIf="!(wait | async)">Liste des Quizzes</h2>
+<br>
+<div *ngIf="!(wait | async)" class="table-wrapper">
+    <table class="table table-hover table-active">
+        <thead class="text-white" style="background-color: #2C6383">
+          <tr>
+            <th>Nom</th>
+            <th>Description</th>
+            <th style="text-align: center">Statut</th>
+            <th class="d-none d-sm-table-cell" style="text-align: center">Date de création</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let quiz of quizzes$ | async; let i = index">
+            <td [routerLink]="['/quiz/generate/' + quiz.id]">{{ quiz.name }}</td>
+            <td [routerLink]="['/quiz/generate/' + quiz.id]">{{ quiz.description }}</td>
+            <td [routerLink]="['/quiz/generate/' + quiz.id]" style="text-align: center">
+                {{ (quiz.status == 'pending') ? 'en cours' : 'finalisé' }}</td>
+            <td class="d-none d-sm-table-cell" [routerLink]="['/quiz/generate/' + quiz.id]"  style="text-align: center">
+                {{ quiz.createdAt | date: 'dd/MM/yyyy' }}</td>
+            <td style="text-align: center">
+                <div style="display: flex; padding: 0; margin: 0;">
+                    <svg [routerLink]="['/quiz/edit/' + quiz.id]"
+                         id="icon-wrench" viewBox="0 0 383 383" xmlns="http://www.w3.org/2000/svg">
+                         <path d="M0 316c0 15 6 29 16 40l12 11c10 11 24 16 39 16s29-5 40-16l115-115a128 128 0 0 0 161-124c0-18-3-35-10-51l-1-1v-1l-1-2-1-1-1-1-2-1-1-1-1-1-1-1h-3l-2-1h-3l-2 1h-1l-2 1h-1l-1 1-2 1-1 1-68 68-33-34 67-68 1-1 1-1 1-2 1-1v-2l1-1v-1-2-1-2l-1-2v-1l-1-1v-2l-1-1-1-1-1-1-2-1-1-1-1-1h-1a128 128 0 0 0-175 150L16 276a56 56 0 0 0-16 40zM255 32l16 1-49 49a32 32 0 0 0 0 46l34 34a32 32 0 0 0 45 0l49-49 1 15a96 96 0 0 1-128 90 96 96 0 0 1 32-186zM39 299l106-106 1 2 6 8 3 4c6 8 13 15 21 22l4 2 9 6 1 1L84 344c-9 9-25 10-34 0l-11-11a24 24 0 0 1 0-34zm0 0" />
+                    </svg>
+                    <svg (click)="onDelete(quiz.id)" version="1.1" id="icon-trash" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                         x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;width:18px;height:auto" xml:space="preserve">
+                            <path class="trash-close" fill="#ea3970" d="M405.333,64h-64V42.667C341.333,19.135,322.188,0,298.667,0h-85.333c-23.521,0-42.667,19.135-42.667,42.667V64h-64
+                      C83.146,64,64,83.135,64,106.667v32c0,5.896,4.771,10.667,10.667,10.667h362.667c5.896,0,10.667-4.771,10.667-10.667v-32
+                      C448,83.135,428.854,64,405.333,64z M298.667,64h-85.333V42.667h85.333V64z" />
+                        <path fill="#2a2a31" d="M416,170.667H96c-5.896,0-10.667,4.771-10.667,10.667v288C85.333,492.865,104.479,512,128,512h256
+                      c23.521,0,42.667-19.135,42.667-42.667v-288C426.667,175.438,421.896,170.667,416,170.667z" />
+                    </svg>
+                </div>
+            </td>
+          </tr>
+        </tbody>
+  </table>
+</div>

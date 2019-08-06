@@ -1,11 +1,12 @@
-import { Quiz } from '../../model/IQuiz';
+import {Question, Quiz} from '../../model/IQuiz';
 import {
-    CreateQuizSuccess, DeleteQuizSuccess,
+    CreateQuizSuccess, DeleteQuizSuccess, FinalizeQuizSuccess,
     LoadQuizzes, LoadQuizzesSuccess,
-    Login, Logout
+    Login, Logout, UpdateQuizSuccess
 } from '../actions/quiz.actions';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 import { createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
+import {selectQuestionEntities} from './question.reducer';
 
 export interface QuizState  extends EntityState<Quiz> {
     loading: boolean;
@@ -56,6 +57,9 @@ export const quizReducer = createReducer(
     ),
     on(CreateQuizSuccess,
         (state, {quiz}) => quizAdapter.addOne(quiz, state)
+    ),
+    on(UpdateQuizSuccess, FinalizeQuizSuccess,
+        (state, {quiz}) => quizAdapter.updateOne({id: quiz.id, changes: quiz}, state)
     ),
     on(DeleteQuizSuccess,
         (state, {id}) => quizAdapter.removeOne(id, state)

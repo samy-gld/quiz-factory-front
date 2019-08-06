@@ -1,0 +1,51 @@
+:host {
+    background: rgb(80,81,86);
+    background: radial-gradient(circle, rgba(80,81,86,1) 0%, rgba(38,50,51,1) 61%, rgba(49,81,91,1) 100%);
+    border-radius: 25px;
+    margin: -10px -10px -10px -10px;
+    padding-top: 45px;
+    padding-bottom: 20px;
+}
+
+.background-modal{
+    min-height: 80vh;
+    border-radius: 25px;
+
+}
+
+.jumbotron {
+    background: rgb(201,203,209);
+    background: linear-gradient(221deg, rgba(201,203,209,1) 0%, rgba(125,160,163,0.8720530448507529) 51%, rgba(201,203,209,1) 100%);
+    border-radius: 25px;
+}
+
+.card {
+    border-radius: 25px;
+}
+
+.card-body:hover {
+    border-radius: 25px;
+    background-color: #5df0fc;
+}
+
+.proposition:hover {
+    cursor: pointer;
+}
+
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes blinking {
+    0%{ background-color: #00ff00; opacity: 1}
+    50%{ background-color: #00ff00; opacity: 1}
+    80%{ background-color: #00ff00; opacity: 0.6}
+    100%{ background-color: #00ff00; opacity: 1}
+}
+
+/* Standard syntax */
+@keyframes blinking {
+    0%{ background-color: #c4ff4d}
+    20%{ background-color: #00ff00}
+    40%{ background-color: #c4ff4d}
+    60%{ background-color: #00ff00}
+    80%{ background-color: #c4ff4d}
+    100%{ background-color: #00ff00}
+}

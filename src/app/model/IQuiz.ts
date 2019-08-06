@@ -17,10 +17,10 @@ export interface Question {
 
 export interface Quiz {
     id?: number;
-    name: string;
-    description: string;
-    status: 'pending'|'finalized';
+    name?: string;
+    description?: string;
+    status?: 'pending'|'finalized';
     createdAt?: Date;
     lastUpdate?: Date;
-    questions: Question[];
+    questions?: Question[];
 }
