@@ -4,6 +4,7 @@ import { QuizFormComponent } from './quiz-form/quiz-form.component';
 import { QuizListComponent } from './quiz-list/quiz-list.component';
 import { PreviewComponent } from './preview/preview.component';
 import { QuestionFormComponent } from './question-form/question-form.component';
+import { InvitePartcipantsComponent } from './invite-partcipants/invite-partcipants.component';
 
 const routes: Routes = [
     {
@@ -26,6 +27,10 @@ const routes: Routes = [
         path: 'generate/:id',
         component: QuestionFormComponent
         // runGuardsAndResolvers: 'always'
+    },
+    {
+        path: 'invite',
+        component: InvitePartcipantsComponent
     }
 ];
 

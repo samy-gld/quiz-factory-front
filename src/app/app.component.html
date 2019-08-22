@@ -1,5 +1,5 @@
 <!--Navbar-->
-<nav class="navbar navbar-expand-sm navbar-dark bg-info">
+<nav class="navbar navbar-expand-sm navbar-dark bg-primary">
     <!-- Navbar brand -->
     <a class="navbar-brand" routerLink="/">{{ title }}</a>
 
@@ -50,6 +50,6 @@
     </section>
 </div>
 
-<div *ngIf="!(home)" id="main" class="container-fluid p-4">
+<div *ngIf="!(home)" id="main" class="container-fluid">
     <router-outlet></router-outlet>
 </div>

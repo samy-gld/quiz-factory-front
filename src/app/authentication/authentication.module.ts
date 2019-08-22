@@ -10,7 +10,7 @@ import { AuthenticationService } from './services/authentication.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { passwordMatchDirective } from './validators/passwordMatchValidator';
-import {ConfirmRegisterComponent} from './confirm-register/confirm-register.component';
+import { ConfirmRegisterComponent } from './confirm-register/confirm-register.component';
 
 @NgModule({
     declarations: [

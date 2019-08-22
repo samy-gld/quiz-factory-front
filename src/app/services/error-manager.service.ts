@@ -31,13 +31,14 @@ export class ErrorManagerService {
                 this.router.navigate(['/login']);
                 break;
             case 'No user with this confirmation token':
+                // tslint:disable-next-line:max-line-length
                 this.toastr.error('Il y a une erreur dans le lien de confirmation. Ou peut-être que le compte a déjà été validé, essayer de vous connecter...');
                 break;
             case 'Bad credentials':
                 this.toastr.error('Les données de connexion sont incorrectes');
                 break;
             default:
-                this.toastr.error(message);
+                this.toastr.error('Une erreur s\'est produite');
         }
     }
 

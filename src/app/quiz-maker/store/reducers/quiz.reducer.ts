@@ -1,4 +1,4 @@
-import {Question, Quiz} from '../../model/IQuiz';
+import {Question, Quiz} from '../../../model/IQuiz';
 import {
     CreateQuizSuccess, DeleteQuizSuccess, FinalizeQuizSuccess,
     LoadQuizzes, LoadQuizzesSuccess,
@@ -71,8 +71,9 @@ export const quizReducer = createReducer(
         })
     ),
     on(Logout,
-        state => ({
+        state => quizAdapter.removeAll({
             ...state,
+            loading: false,
             isAuthenticated: false
         })
     )

@@ -2,62 +2,42 @@
     <div class="jumbotron mt-0 mr-5 mb-5 ml-5 mb-3">
         <h2>{{ (currentQuestion | async).label }}</h2>
     </div>
-    <div *ngIf="(currentQuestion | async).type === 'duo' || (currentQuestion | async).type === 'carre'"
-         class="card-group mt-5 mr-5 ml-5 mb-3">
-        <div class="card-columns col-md-12 mb-3" style="column-count: 2;">
-            <div class="card bg-info text-white text-center proposition" (click)="!answered && onResponse(0)">
-                <div class="card-body" [ngStyle]="responseStyle[0]" >
-                    <h5 class="card-title">{{ (currentQuestion | async).propositions[0].label }}</h5>
-                </div>
-            </div>
-            <div class="card bg-info text-white text-center proposition" (click)="!answered && onResponse(1)">
-                <div class="card-body" [ngStyle]="responseStyle[1]" >
-                    <h5 class="card-title">{{ (currentQuestion | async).propositions[1].label }}</h5>
-                </div>
-            </div>
-        </div>
-        <div *ngIf="(currentQuestion | async).type === 'carre'" class="card-columns col-md-12" style="column-count: 2;">
-            <div class="card bg-info text-white text-center proposition" (click)="!answered && onResponse(2)">
-                <div class="card-body" [ngStyle]="responseStyle[2]" >
-                    <h5 class="card-title">{{ (currentQuestion | async).propositions[2].label }}</h5>
-                </div>
-            </div>
-            <div class="card bg-info text-white text-center proposition" (click)="!answered && onResponse(3)">
-                <div class="card-body" [ngStyle]="responseStyle[3]" >
-                    <h5 class="card-title">{{ (currentQuestion | async).propositions[3].label }}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div *ngIf="(currentQuestion | async).type === 'qcm'">
-        <div class="row">
-            <p class="text-white font-italic ml-5 mb-0">Plusieurs réponses possibles</p>
+    <div [ngSwitch]="true">
+        <div *ngSwitchCase="(currentQuestion | async).type === 'duo' || (currentQuestion | async).type === 'carre'"
+             class="mt-5 mr-5 ml-5 mb-3">
+            <div class="row">
+                <div class="col-sm-12 col-md-6 mb-3" *ngFor="let proposition of (currentQuestion | async).propositions; let i = index;">
+                    <div class="card bg-info text-white text-center proposition" (click)="!answered && onResponse(i)">
+                        <div class="card-body" [ngStyle]="responseStyle[i]" >
+                            <h5 class="card-title">{{ proposition.label }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-12 d-flex">
-            <div class="col-md-6 col-sm-12 mt-2 mr-1 ml-0 mb-3 pr-0">
-                <ul *ngFor="let proposition of (currentQuestion | async).propositions; let i = index;" class="list-group">
-                    <li *ngIf="i < (currentQuestion | async).propositions.length / 2" (click)="!answered && onSelect(i)" [ngStyle]="responseStyle[i]"
-                        class="list-group-item list-group-item-action list-group-item-info mb-1 proposition">
+
+        <div *ngSwitchCase="(currentQuestion | async).type === 'qcm'">
+            <div>
+                <div class="row">
+                    <p class="text-white font-italic ml-5 mb-0">Plusieurs réponses possibles</p>
+                </div>
+                <ul class="row mt-2 ml-2 mb-3 d-flex">
+                    <li *ngFor="let proposition of (currentQuestion | async).propositions; let i = index;"
+                        class="list-group-item list-group-item-action list-group-item-info m-1 proposition"
+                        style="width: 36vw; height: 3em; border-radius: 3px;"
+                        (click)="!answered && onSelect(i)" [ngStyle]="responseStyle[i]">
                         {{ proposition.label }}
                     </li>
                 </ul>
             </div>
-            <div class="col-md-6 col-sm-12 mt-2 mr-0 ml-0 mb-3 pl-0">
-                <ul *ngFor="let proposition of (currentQuestion | async).propositions; let i = index;" class="list-group">
-                    <li *ngIf="i >= (currentQuestion | async).propositions.length / 2" (click)="!answered && onSelect(i)" [ngStyle]="responseStyle[i]"
-                        class="list-group-item list-group-item-action list-group-item-info mb-1 proposition">
-                        {{ proposition.label }}
-                    </li>
-                </ul>
+            <div class="mb-4">
+                <button class="btn btn-outline-info ml-auto mr-auto" [ngStyle]="{display: answered ? 'none' : 'block'}"
+                        (click)="!answered && onResponse()">Valider ces réponses</button>
             </div>
         </div>
     </div>
 
-    <div *ngIf="(currentQuestion | async).type === 'qcm'" class="mb-4">
-        <button class="btn btn-outline-info ml-auto mr-auto" [ngStyle]="{display: answered ? 'none' : 'block'}"
-                (click)="!answered && onResponse()">Valider ces réponses</button>
-    </div>
     <div class="d-flex">
         <div class="mr-auto"></div>
         <button class="btn mr-5" [ngClass]="buttonClass" [ngStyle]="displayNextButton"

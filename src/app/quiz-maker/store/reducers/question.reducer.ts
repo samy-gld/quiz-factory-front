@@ -1,10 +1,10 @@
-import {Proposition, Question, Quiz} from '../../model/IQuiz';
+import {Proposition, Question, Quiz} from '../../../model/IQuiz';
 import {
-    LoadQuestions, LoadQuestionsSuccess, LoadQuestionError,
-    CreateQuestionSuccess, CreateQuestionError, UpdateQuestionSuccess, UpdateQuestionError,
-    CreatePropositionError, CreatePropositionSuccess, UpdatePropositionSuccess, UpdatePropositionError,
-    DeletePropositionSuccess, DeletePropositionError, UpdateQuestionForm, UnsetAll,
-    IncrementPosition, DecrementPosition, ResetErrorSaving, LoadQuizSuccess, GoToPosition
+    LoadQuizSuccess, GoToPosition, LoadQuiz, LoadQuizError, CreateQuestionSuccess, CreateQuestionError,
+    UpdateQuestionSuccess, UpdateQuestionError, CreatePropositionError, CreatePropositionSuccess,
+    UpdatePropositionSuccess, UpdatePropositionError, DeletePropositionSuccess, DeletePropositionError,
+    UpdateQuestionForm, UnsetAll, IncrementPosition, DecrementPosition, ResetErrorSaving,
+    DeleteQuestionSuccess, CreateQuestion, UpdateQuestion, DeleteQuestion
 } from '../actions/question.actions';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 import { createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
@@ -15,6 +15,7 @@ export interface QuestionState  extends EntityState<Question> {
     currentQuestion: Question | null;
     currentQuestionPosition: number | null;
     questionForm: Question[];
+    savePendingQuestions: any[];
     loading: boolean;
     errorSaving: boolean;
 }
@@ -33,6 +34,7 @@ export const initialQuestionState: QuestionState = questionAdapter.getInitialSta
     currentQuestion: null,
     currentQuestionPosition: null,
     questionForm: [],
+    savePendingQuestions: [],
     loading: false,
     errorSaving: false
 });
@@ -58,7 +60,7 @@ export const {
 export const getCurrentQuiz = (state: QuestionState): Quiz => state.currentQuiz;
 export const selectCurrentQuiz = createSelector(selectQuestionState, getCurrentQuiz);
 
-export const getCurrentQuizStatus = (state: QuestionState): string => state.currentQuiz.status;
+export const getCurrentQuizStatus = (state: QuestionState): boolean => state.currentQuiz.status === 'finalized';
 export const selectCurrentQuizStatus = createSelector(selectQuestionState, getCurrentQuizStatus);
 
 export const getCurrentQuestion = (state: QuestionState): Question => state.currentQuestion;
@@ -80,37 +82,52 @@ export const selectQuestionByPosition = (position) =>
 export const getErrorSaving = (state: QuestionState): boolean => state.errorSaving;
 export const selectErrorSaving = createSelector(selectQuestionState, getErrorSaving);
 
+export const getSavePendingQuestions = (state: QuestionState): any[] => state.savePendingQuestions;
+export const selectSavePendingQuestions = createSelector(selectQuestionState, getSavePendingQuestions);
+
 export const selectQuestionsFromState = selectQuestionEntities;
 export const selectIdsFromState = selectQuestionIds;
 export const selectCountQuestions = countQuestions;
 
-export const selectTabsForUpdate = createSelector(selectQuestionState,
-    selectQuestionForm,
-    selectQuestionsFromState,
-    (s, qf, qfs) => [qf, qfs]);
-
 /********** Reducer **********/
 export const questionReducer = createReducer(
     initialQuestionState,
-    on(LoadQuizSuccess,
-        (state, {quiz}) => ({
-            ...state,
-            currentQuiz: quiz,
-        })
-    ),
-    on(LoadQuestions,
-        (state) => ({
+    on(LoadQuiz,
+        state => ({
             ...state,
             loading: true
         })
     ),
-    on(LoadQuestionsSuccess,
-        (state, {questions}) => questionAdapter.addMany(questions, {
+    on(LoadQuizSuccess,
+        (state, {quiz}) => {
+            const questions = quiz.questions.slice(0);
+            delete quiz.questions;
+            return questionAdapter.addMany(questions, {
+                ...state,
+                currentQuiz: quiz,
+                currentQuestion: questions.length !== 0 ? questions[0].position === 1 ? questions[0] : null : null,
+                currentQuestionPosition: 1,
+                questionForm: questions,
+                loading: false
+            });
+        }
+    ),
+    on(LoadQuizError,
+        state => ({
             ...state,
-            currentQuestion: questions.length !== 0 ? questions[0].position === 1 ? questions[0] : null : null,
-            currentQuestionPosition: 1,
-            questionForm: questions,
             loading: false
+        })
+    ),
+    on(UpdateQuestion, CreateQuestion,
+        (state, action) => ({
+            ...state,
+            savePendingQuestions: [...state.savePendingQuestions, {action: 'saving', position: action.question.position}]
+        })
+    ),
+    on(DeleteQuestion,
+        (state, action) => ({
+            ...state,
+            savePendingQuestions: [...state.savePendingQuestions, {action: 'deleting', position: action.questionPosition}]
         })
     ),
     on(CreateQuestionSuccess,
@@ -122,32 +139,66 @@ export const questionReducer = createReducer(
             }
             return questionAdapter.addOne(question, {
                 ...state,
-                questionForm: qForm
+                questionForm: qForm,
+                currentQuestion: question.position === state.currentQuestionPosition ? question : state.currentQuestion,
+                savePendingQuestions: state.savePendingQuestions.slice(0).filter(p => p.position !== question.position)
             });
         }
     ),
     on(UpdateQuestionSuccess,
         (state, {question}) => {
             const qForm: Question[] = state.questionForm.slice(0);
-            const index = qForm.findIndex((q => q.position === question.id)); // typeof question: Update<Question>
+            const index = qForm.findIndex((q => q.position === question.id));
             if (index >= 0) {
                 qForm[index].id = question.changes.id;
             }
             return questionAdapter.updateOne(question, {
                 ...state,
-                questionForm: qForm
+                questionForm: qForm,
+                savePendingQuestions: state.savePendingQuestions.slice(0).filter(p => p.position !== question.changes.position)
             });
+        }
+    ),
+    on(DeleteQuestionSuccess,
+        (state, {questionPosition}) => {
+            const qForm: Question[] = state.questionForm.slice(0);
+            let curQuestion: Question|null = null;
+            const index = qForm.findIndex((q => q.position === state.currentQuestionPosition));
+            if (index >= 0) {
+                qForm.splice(index, 1);
+                const indexCurQuestion = qForm.findIndex(q => q.position === state.currentQuestionPosition);
+                if (indexCurQuestion >= 0) {
+                    curQuestion = qForm[indexCurQuestion];
+                }
+            }
+            if (questionPosition !== null) {
+                return questionAdapter.removeOne(questionPosition, {
+                    ...state,
+                    questionForm: qForm,
+                    currentQuestion: curQuestion,
+                    savePendingQuestions: state.savePendingQuestions.slice(0).filter(p => p.position !== questionPosition)
+                });
+            } else {
+                return {
+                    ...state,
+                    questionForm: qForm,
+                    currentQuestion: curQuestion,
+                    savePendingQuestions: state.savePendingQuestions.slice(0).filter(p => p.position !== questionPosition)
+                };
+            }
         }
     ),
     on(CreatePropositionSuccess,
         (state, {questionPosition, proposition, index}) => {
-            const curQuestion = state.currentQuestion;
+            const curQuestion: Question = state.currentQuestion;
             const qForm: Question[] = state.questionForm.slice(0);
-            const indexQuestion = qForm.findIndex((q => q.position === questionPosition));
+            const indexQuestion: number = qForm.findIndex((q => q.position === questionPosition));
             if (indexQuestion >= 0) {
                 qForm[indexQuestion].propositions[index].id = proposition.id;
             }
-            const propositions: Proposition[] = state.entities[questionPosition].propositions.slice(0);
+            const propositions: Proposition[] =
+                state.entities[questionPosition].propositions !== null && state.entities[questionPosition].propositions !== undefined ?
+                    state.entities[questionPosition].propositions.slice(0) : [];
             propositions.push(proposition);
             if (questionPosition === state.currentQuestionPosition) {
                 curQuestion.propositions = propositions;
@@ -186,7 +237,7 @@ export const questionReducer = createReducer(
             });
         }
     ),
-    on(LoadQuestionError, CreateQuestionError, UpdateQuestionError,
+    on(LoadQuizError, CreateQuestionError, UpdateQuestionError, DeletePropositionError,
         CreatePropositionError, UpdatePropositionError, DeletePropositionError,
         state => ({
             ...state,
@@ -194,20 +245,26 @@ export const questionReducer = createReducer(
         })
     ),
     on(IncrementPosition,
-        state => ({
-            ...state,
-            currentQuestion: state.questionForm[state.currentQuestionPosition] !== undefined ?
-                state.questionForm[state.currentQuestionPosition] : null,
-            currentQuestionPosition: state.currentQuestionPosition + 1
-        })
+        state => {
+            const newCurQuestionPosition = state.currentQuestionPosition + 1;
+            const findPositionInQuestionForm = state.questionForm.findIndex(q => q.position === newCurQuestionPosition);
+            return {
+                ...state,
+                currentQuestion: findPositionInQuestionForm >= 0 ? state.questionForm[findPositionInQuestionForm] : null,
+                currentQuestionPosition: newCurQuestionPosition
+            };
+        }
     ),
     on(DecrementPosition,
-        state => ({
-            ...state,
-            currentQuestion: state.questionForm[state.currentQuestionPosition - 2] !== undefined ?
-                state.questionForm[state.currentQuestionPosition - 2] : null,
-            currentQuestionPosition: state.currentQuestionPosition - 1
-        })
+        state => {
+            const newCurQuestionPosition = state.currentQuestionPosition - 1;
+            const findPositionInQuestionForm = state.questionForm.findIndex(q => q.position === newCurQuestionPosition);
+            return {
+                ...state,
+                currentQuestion: findPositionInQuestionForm >= 0 ? state.questionForm[findPositionInQuestionForm] : null,
+                currentQuestionPosition: newCurQuestionPosition
+            };
+        }
     ),
     on(GoToPosition,
         (state, {position}) => ({
@@ -224,6 +281,13 @@ export const questionReducer = createReducer(
                 if (!question.id) {
                     question.id = qForm[index].id;
                 }
+
+                // keeping proposition ids from original questionForm
+                question.propositions.map((prop, i) => {
+                    if (qForm[index].propositions[i] !== undefined) {
+                        prop.id = qForm[index].propositions[i].id;
+                    }
+                });
                 qForm[index] = question;
             } else {
                 qForm.push(question);

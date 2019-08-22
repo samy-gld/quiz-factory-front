@@ -11,7 +11,7 @@
         <div class="form-group">
             <label class="control-label" for="quizName">Nom du Quiz</label>
             <input class="form-control input-md" id="quizName" type="text" name="quizName" [(ngModel)]="quiz.name" #quizName="ngModel"
-                   required minlength="4" />
+                   required minlength="4" maxlength="40" />
             <div *ngIf="f.submitted && (quizName.dirty || quizName.touched) && quizName.errors"
                  class="alert alert-danger">
                 <div *ngIf="quizName.errors.required">Champ obligatoire</div>
@@ -21,7 +21,7 @@
         <div class="form-group">
             <label class="control-label" for="quizDesc">Description</label>
             <input class="form-control input-md" id="quizDesc" type="text" name="quizDesc" [(ngModel)]="quiz.description" #quizDesc="ngModel"
-                   required minlength="4" />
+                   required minlength="4" maxlength="110" />
             <div *ngIf="f.submitted && (quizDesc.dirty || quizDesc.touched) && quizDesc.errors"
                  class="alert alert-danger">
                 <div *ngIf="quizDesc.errors.required">Champ obligatoire</div>

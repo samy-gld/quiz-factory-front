@@ -3,10 +3,10 @@ import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Quiz } from '../../model/IQuiz';
 import { select, Store } from '@ngrx/store';
-import { CreateQuiz, UpdateQuiz } from '../../store/actions/quiz.actions';
-import { QuizState } from '../../store/reducers/quiz.reducer';
-import { QuestionState, selectCurrentQuiz, selectErrorSaving } from '../../store/reducers/question.reducer';
-import { LoadQuiz, ResetErrorSaving } from '../../store/actions/question.actions';
+import { CreateQuiz, UpdateQuiz } from '../store/actions/quiz.actions';
+import { QuizState } from '../store/reducers/quiz.reducer';
+import { QuestionState, selectCurrentQuiz, selectErrorSaving } from '../store/reducers/question.reducer';
+import { LoadQuiz, ResetErrorSaving } from '../store/actions/question.actions';
 import { filter, skip, skipWhile, take } from 'rxjs/operators';
 
 @Component({

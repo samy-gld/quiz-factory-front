@@ -2,18 +2,19 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, withLatestFrom } from 'rxjs/operators';
-import { Quiz } from '../../model/IQuiz';
+import { Quiz } from '../../../model/IQuiz';
 import { mergeMap } from 'rxjs/internal/operators/mergeMap';
-import { Store, select, createReducer } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import {
     ActionsUnion, CreateQuiz, CreateQuizError, CreateQuizSuccess,
-    DeleteQuiz, DeleteQuizError, DeleteQuizSuccess, FinalizeQuiz, FinalizeQuizError, FinalizeQuizSuccess, LoadQuizzes, LoadQuizzesError,
+    DeleteQuiz, DeleteQuizError, DeleteQuizSuccess, FinalizeQuiz,
+    FinalizeQuizError, FinalizeQuizSuccess, LoadQuizzes, LoadQuizzesError,
     LoadQuizzesSuccess, UpdateQuiz, UpdateQuizError, UpdateQuizSuccess
 } from '../actions/quiz.actions';
 import { of } from 'rxjs/internal/observable/of';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
-import { ErrorManagerService } from '../../services/error-manager.service';
+import { ErrorManagerService } from '../../../services/error-manager.service';
 import { QuizState, selectQuizzes } from '../reducers/quiz.reducer';
 
 @Injectable()

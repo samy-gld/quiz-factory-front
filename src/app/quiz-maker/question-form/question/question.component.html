@@ -1,0 +1,51 @@
+<form [formGroup]="questionForm$ | async"
+      name="questionForm" class="row d-flex justify-content-around">
+
+    <div class="row">
+        <div class="form-group col-12 m-0 p-0 text-center">
+            <div class="form-group text-center">
+                <label for="questionLabel"><h4>Intitulé de la question</h4></label>
+                <textarea class="form-control input-md" style="resize: none;" id="questionLabel"
+                          formControlName="questionLabel" maxlength="300" #labelLength></textarea>
+                <span class="text-right form-text" id="spanCar" style="color: #2B3E50;font-size: 0.7rem"><code>{{ labelLength.value.length }}</code> / 300 &nbsp;</span>
+            </div>
+            <div class="form-group d-flex radio-form text-center">
+                <div class="custom-control custom-radio col-4">
+                    <input id="duo" type="radio" value="duo" name="questionType" class="custom-control-input"
+                           formControlName="questionType" (change)="updateQuestionType($event)" >
+                    <label class="custom-control-label" for="duo">Duo</label>
+                </div>
+                <div class="custom-control custom-radio col-4">
+                    <input id="carre" type="radio" value="carre" name="questionType" class="custom-control-input"
+                           formControlName="questionType" (change)="updateQuestionType($event)" >
+                    <label class="custom-control-label" for="carre">Carré</label>
+                </div>
+                <div class="custom-control custom-radio col-4">
+                    <input id="qcm" type="radio" value="qcm" name="questionType" class="custom-control-input"
+                           formControlName="questionType" (change)="updateQuestionType($event)" >
+                    <label class="custom-control-label" for="qcm">QCM</label>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-dimension" (click)="deleteQuestion()" [disabled]="!currentQuestion">Supprimer</button>
+        </div>
+    </div>
+
+    <div class="row d-block"  formArrayName="propositions">
+        <h4 class="text-center">Propositions</h4>
+
+        <div style="padding-top: 1em" *ngFor="let propositionGroup of (propositions | async); let i = index">
+
+            <div class="prop-display" [formGroupName]="i">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" (change)="uncheckOthers($event)"
+                           [attr.id]="'check_' + i" name="wrightAnswer" formControlName="wrightAnswer"
+                           maxlength="150">
+                    <label class="custom-control-label" [attr.for]="'check_' + i"></label>
+                </div>
+                <input class="form-control" type="text" formControlName="label" />
+                <input type="hidden" formControlName="id" />
+                <input type="hidden" formControlName="position" />
+            </div>
+        </div>
+    </div>
+</form>

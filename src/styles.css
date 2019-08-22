@@ -1,11 +1,2 @@
 /* You can add global styles to this file, and also import other style files */
-@import "./assets/css/modal_styles.css";
-
-body {
-    font-family: Roboto, sans-serif;
-}
-
-.btn-dimension{
-    width: 140px;
-    height: 46px;
-}
+@import "./assets/css/styles.css";

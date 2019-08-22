@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Quiz } from '../../model/IQuiz';
 import { select, Store } from '@ngrx/store';
-import { DeleteQuiz, LoadQuizzes } from '../../store/actions/quiz.actions';
-import { QuizState, selectQuizzes, selectLoading } from '../../store/reducers/quiz.reducer';
+import { DeleteQuiz, LoadQuizzes } from '../store/actions/quiz.actions';
+import { QuizState, selectQuizzes, selectLoading } from '../store/reducers/quiz.reducer';
 
 @Component({
   selector: 'app-quiz-list',

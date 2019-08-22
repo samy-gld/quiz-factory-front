@@ -1,9 +1,9 @@
-import { Component, EventEmitter, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Question } from '../../model/IQuiz';
 import {
     QuestionState,
     selectIdsFromState, selectQuestionByPosition
-} from '../../store/reducers/question.reducer';
+} from '../store/reducers/question.reducer';
 import { select, Store } from '@ngrx/store';
 import { take, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -12,7 +12,6 @@ import { Observable } from 'rxjs';
     selector: 'app-preview',
     templateUrl: './preview.component.html',
     styleUrls: ['./preview.component.css'],
-    // encapsulation: ViewEncapsulation.None
 })
 export class PreviewComponent implements OnInit {
     @Output() closePreview: EventEmitter<boolean> = new EventEmitter<boolean>();

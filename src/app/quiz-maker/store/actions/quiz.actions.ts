@@ -1,5 +1,5 @@
 import { createAction, props, union } from '@ngrx/store';
-import { Quiz } from '../../model/IQuiz';
+import { Quiz } from '../../../model/IQuiz';
 
 export const LoadQuizzes = createAction(
     '[Quiz] Load Quizzes',

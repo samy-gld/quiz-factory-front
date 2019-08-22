@@ -3,18 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Proposition, Question } from '../../model/IQuiz';
 import { select, Store } from '@ngrx/store';
 import {
-    QuestionState, selectCountQuestions,
-    selectIdsFromState,
-    selectQuestionByPosition,
-    selectTabsForUpdate
-} from '../../store/reducers/question.reducer';
+    QuestionState, selectCountQuestions, selectIdsFromState, selectQuestionByPosition, selectQuestionForm, selectQuestionsFromState
+} from '../store/reducers/question.reducer';
 import {
     CreateProposition,
     CreateQuestion,
     DeleteProposition,
     UpdateProposition,
-    UpdateQuestion } from '../../store/actions/question.actions';
-import { skipWhile, take, tap } from 'rxjs/operators';
+    UpdateQuestion } from '../store/actions/question.actions';
+import { skipWhile, take, tap, withLatestFrom } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
@@ -64,21 +61,18 @@ export class QuestionService {
                      if (question.label === null || question.label.trim() === '') {
                          violations.push({position: question.position, error: 'vous devez saisir un libellé pour cette question'});
                      }
-                     let wa = false;
-                     for (const proposition of question.propositions) {
-                         if (proposition.wrightAnswer) {
-                             wa = true;
-                         }
-                         if (proposition.label === null || proposition.label.trim() === '') {
-                             violations.push({position: question.position, error: 'toutes les propositions doivent être saisies'});
-                         }
-                     }
-                     if (!wa) {
+
+                     const existWrightAnswer = question.propositions.findIndex(p => !!p.wrightAnswer);
+                     if (existWrightAnswer === -1) {
                          violations.push({position: question.position, error: 'aucune réponse correcte n\'a été indiquée'});
+                     }
+
+                     const allPropFilled = question.propositions.findIndex(p => p.label === null || p.label.trim() === '' );
+                     if (allPropFilled !== -1) {
+                         violations.push({position: question.position, error: 'toutes les propositions doivent être saisies'});
                      }
                  }
              );
-
              nextPosition = positionIterator.next();
         }
 
@@ -87,7 +81,12 @@ export class QuestionService {
 
     onSaveQuestions(quizId: number) {
         this.questionStore.pipe(
-            select(selectTabsForUpdate),
+            select(selectQuestionForm),
+            take(1)
+        ).pipe(
+            withLatestFrom(
+                this.questionStore.select(selectQuestionsFromState)
+            ),
             take(1)
         )
             .subscribe(
@@ -130,22 +129,24 @@ export class QuestionService {
     }
 
     onSavePropositions(propositions: Proposition[], questionPosition: number, questionId: number, propositionState: Proposition[] = null) {
-        let position = 1;
         for (let index = 0; index < propositions.length; index++) {
             let proposition = propositions[index];
-            proposition = {label: proposition.label, wrightAnswer: proposition.wrightAnswer, position: proposition.position};
-            position++;
-            if (propositionState !== null && propositionState[index] !== undefined) {
-                if (propositionState[index].wrightAnswer !== proposition.wrightAnswer
-                    || propositionState[index].label !== proposition.label) {
-                    const id = propositionState[index].id;
+            let matchingIndex = -1;
+            if (propositionState !== null) {
+                matchingIndex = propositionState.findIndex(p => p.id === proposition.id && p.position === proposition.position);
+            }
+            proposition = {label: proposition.label, wrightAnswer: proposition.wrightAnswer, position: proposition.position}; // delete id
+            if (matchingIndex >= 0) {
+                if (propositionState[matchingIndex].wrightAnswer !== proposition.wrightAnswer
+                    || propositionState[matchingIndex].label !== proposition.label) {
+                    const id = propositionState[matchingIndex].id;
                     this.modifDone = true;
-                    this.questionStore.dispatch(UpdateProposition({questionPosition, id, proposition, index}));
+                    this.questionStore.dispatch(UpdateProposition({questionPosition, id, proposition, index: matchingIndex}));
                 }
             } else {
                 this.modifDone = true;
                 this.questionStore.dispatch(CreateProposition({questionId, questionPosition, proposition, index}));
-            }
+                }
         }
 
         /* Delete unused propositions (for example: if switched from 'carre' to 'duo' */

@@ -5,10 +5,6 @@ import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { EffectsModule } from '@ngrx/effects';
-import { QuizEffects } from './store/effects/quiz.effects';
-import { QuestionEffects } from './store/effects/question.effects';
-import { quizReducer } from './store/reducers/quiz.reducer';
-import { questionReducer } from './store/reducers/question.reducer';
 import { ToastrModule } from 'ngx-toastr';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { QuizMakerModule } from './quiz-maker/quiz-maker.module';
@@ -25,14 +21,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     CollapseModule.forRoot(),
     HttpClientModule,
     ToastrModule.forRoot(),
-    StoreModule.forRoot({}),
-    StoreModule.forFeature('quizzes', quizReducer),
-    StoreModule.forFeature('questions', questionReducer),
-    !environment.production ? StoreDevtoolsModule.instrument() : [],
-    EffectsModule.forRoot([QuizEffects, QuestionEffects]),
-    QuizMakerModule,
     AuthenticationModule,
-    AppRoutingModule
+    QuizMakerModule,
+    AppRoutingModule,
+    StoreModule.forRoot({}),
+    EffectsModule.forRoot([]),
+    !environment.production ? StoreDevtoolsModule.instrument() : []
   ],
   providers: [],
   bootstrap: [AppComponent]

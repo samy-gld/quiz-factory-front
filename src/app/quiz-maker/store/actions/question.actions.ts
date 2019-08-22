@@ -1,5 +1,5 @@
 import { createAction, props, union } from '@ngrx/store';
-import {Proposition, Question, Quiz} from '../../model/IQuiz';
+import {Proposition, Question, Quiz} from '../../../model/IQuiz';
 import {Update} from '@ngrx/entity';
 
 export const LoadQuiz = createAction(
@@ -14,21 +14,6 @@ export const LoadQuizSuccess = createAction(
 
 export const LoadQuizError = createAction(
     '[Quiz] Load a quiz Error',
-    props<{error: any}>()
-);
-
-export const LoadQuestions = createAction(
-    '[Question] Load Questions',
-    props<{id: number}>()
-);
-
-export const LoadQuestionsSuccess = createAction(
-    '[Question] Load Questions Success',
-    props<{questions: Question[]}>()
-);
-
-export const LoadQuestionError = createAction(
-    '[Question] Load Questions Error',
     props<{error: any}>()
 );
 
@@ -59,6 +44,21 @@ export const UpdateQuestionSuccess = createAction(
 
 export const UpdateQuestionError = createAction(
     '[Question] Update Question Error',
+    props<{error: any}>()
+);
+
+export const DeleteQuestion = createAction(
+    '[Question] Delete a Question',
+    props<{id: number, questionPosition: number}>()
+);
+
+export const DeleteQuestionSuccess = createAction(
+    '[Question] Delete a Question Success',
+    props<{questionPosition: number}>()
+);
+
+export const DeleteQuestionError = createAction(
+    '[Question] Delete Question Error',
     props<{error: any}>()
 );
 
@@ -135,9 +135,9 @@ export const UnsetAll = createAction(
 
 const actions = union({
   LoadQuiz, LoadQuizSuccess, LoadQuizError,
-  LoadQuestions, LoadQuestionsSuccess, LoadQuestionError,
   CreateQuestion, CreateQuestionSuccess, CreateQuestionError,
   UpdateQuestion, UpdateQuestionSuccess, UpdateQuestionError,
+  DeleteQuestion, DeleteQuestionSuccess, DeleteQuestionError,
   CreateProposition, CreatePropositionSuccess, CreatePropositionError,
   UpdateProposition, UpdatePropositionSuccess, UpdatePropositionError,
   DeleteProposition, DeletePropositionSuccess, DeletePropositionError,

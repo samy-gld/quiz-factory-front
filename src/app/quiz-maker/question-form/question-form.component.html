@@ -5,86 +5,85 @@
     </svg>
 </div>
 
-<div *ngIf="!(loadingQuestion | async) && (currentQuiz | async)" class="d-flex" id="head">
-    <h2>{{ (currentQuiz | async).name }}</h2>
-    <div id="divButtons" class="d-flex">
-        <button id="previewButton" class="btn btn-info btn-dimension" (click)="onPreview()">Prévisualiser</button>
-        <span id="separation"></span>
-        <button id="validButton" class="btn btn-info btn-dimension mr-0" (click)="onValidation()">Valider</button>
-    </div>
-</div>
-<br>
-<div *ngIf="!(loadingQuestion | async) && (questionForm$ | async)" class="row justify-content-center d-flex">
-    <div class="icons-prev-next">
-        <div class="main__item">
-            <button class="arrow left" (click)="questionPosition > 1 && onSwitchQuestion($event)" id="prev">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 50 80"  xml:space="preserve">
-                    <polyline fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" points="
-                    45.63,75.8 0.375,38.087 45.63,0.375 "/>
-                </svg>
-            </button>
-        </div>
-
-        <h2>&nbsp;Question n°{{ questionPosition }}</h2>
-
-        <div class="main__item">
-            <button class="arrow right" (click)="onSwitchQuestion($event)" id="next">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 50 80" xml:space="preserve">
-                    <polyline fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" points="
-                    0.375,0.375 45.63,38.087 0.375,75.8 "/>
-                </svg>
-            </button>
+<div *ngIf="!(loadingQuestion | async) && (currentQuiz$ | async) as currentQuiz" class="container-fluid">
+    <div class="jumbotron d-flex w-100 justify-content-between p-4 m-2" id="head">
+        <h2>{{ currentQuiz.name }}</h2>
+        <div>
+            <button id="previewButton" class="btn btn-primary btn-dimension" (click)="onPreview()">Prévisualiser</button>
+            <span id="separation">&nbsp;</span>
+            <button *ngIf="!quizFinalized" id="validButton" class="btn btn-primary btn-dimension mr-0"
+                    (click)="onValidation()">Valider</button>
+            <button *ngIf="quizFinalized" id="inviteButton" class="btn btn-primary btn-dimension mr-0 pt-0" style="line-height: 20px"
+                    (click)="onInvite()">Inviter des participants</button>
         </div>
     </div>
 </div>
 
-<form *ngIf="!(loadingQuestion | async) && (questionForm$ | async)" [formGroup]="questionForm$ | async"
-      name="questionForm" class="row d-flex justify-content-around">
-
-    <div class="row">
-        <div class="form-group col-12 m-0 p-0">
-            <div class="form-group text-center">
-                <label for="questionLabel"><h4>Intitulé de la question</h4></label>
-                <textarea class="form-control input-md" style="resize: none;" id="questionLabel" formControlName="questionLabel"></textarea>
+<div *ngIf="!(loadingQuestion | async) && (questionForm$ | async)" class="row d-block">
+    <div class="d-flex justify-content-center mt-3">
+        <div class="icons-prev-next">
+            <div class="main__item">
+                <button class="arrow mr-2" (click)="questionPosition > 1 && onSwitchQuestion($event)" id="prev">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 50 80"  xml:space="preserve">
+                        <polyline fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" points="
+                        45.63,75.8 0.375,38.087 45.63,0.375 "/>
+                    </svg>
+                </button>
             </div>
-            <div class="form-group d-flex">
-                <div class="custom-control custom-radio col-4">
-                    <input id="duo" type="radio" value="duo" name="questionType" class="custom-control-input"
-                           formControlName="questionType" (change)="updateQuestionType($event)" >
-                    <label class="custom-control-label" for="duo">Duo</label>
-                </div>
-                <div class="custom-control custom-radio col-4">
-                    <input id="carre" type="radio" value="carre" name="questionType" class="custom-control-input"
-                            formControlName="questionType" (change)="updateQuestionType($event)" >
-                    <label class="custom-control-label" for="carre">Carre</label>
-                </div>
-                <div class="custom-control custom-radio col-4">
-                  <input id="qcm" type="radio" value="qcm" name="questionType" class="custom-control-input"
-                            formControlName="questionType" (change)="updateQuestionType($event)" >
-                  <label class="custom-control-label" for="qcm">QCM</label>
-                </div>
+
+            <h2>Question n°{{ questionPosition }}</h2>
+
+            <div class="main__item">
+                <button class="arrow" (click)="onSwitchQuestion($event)" id="next">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 50 80" xml:space="preserve">
+                        <polyline fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" points="
+                        0.375,0.375 45.63,38.087 0.375,75.8 "/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
+    <div [ngSwitch]="questionStatus$ | async">
+        <div *ngSwitchCase="'saving'" class="text-center"><span class="badge badge-pill badge-primary">Sauvegarde en cours</span></div>
+        <div *ngSwitchCase="'saved'" class="text-center"><span class="badge badge-pill badge-success">Sauvegardée</span></div>
+        <div *ngSwitchCase="'unsaved'" class="text-center"><span class="badge badge-pill badge-secondary">Non sauvegardée</span></div>
+        <div *ngSwitchCase="'deleting'" class="text-center"><span class="badge badge-pill badge-primary">Suppression en cours</span></div>
+    </div>
+</div>
 
-  <div class="row d-block"  formArrayName="propositions">
-      <h4 class="text-center">Propositions</h4>
-      
-      <div style="padding-top: 1em" *ngFor="let propositionGroup of (propositions | async); let i = index">
+<app-question
+    *ngIf="!(loadingQuestion | async) && (questionForm$ | async)"
+    [questionForm$]="questionForm$"
+    [currentQuestion]="currentQuestion"
+    (deleteQuestionEvent)="onDeleteQuestion()"
+></app-question>
 
-        <div class="prop-display" [formGroupName]="i">
-            <div class="custom-control custom-checkbox">
-            <input type="checkbox" class="custom-control-input" (change)="uncheckOthers($event)"
-                   [attr.id]="'check_' + i" name="wrightAnswer" formControlName="wrightAnswer">
-            <label class="custom-control-label" [attr.for]="'check_' + i"></label>
-          </div>
-          <input class="form-control" type="text" formControlName="label" />
-          <input type="hidden" formControlName="id" />
-          <input type="hidden" formControlName="position" />
+<!-- Delete question modal template -->
+<ng-template #deleteQuestionTemplate>
+    <div class="modal-header modal-header-validation">
+        <h4 class="modal-title pull-left text-white">Suppression de la question n°{{ currentQuestion.position }}</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+            <span class="text-white" aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body text-center">
+        <span class="mt-2">
+            Après suppression de la question, les champs de saisie seront vidés. Le formulaire
+            apparaîtra toujours pour cette position, mais la question ne fera plus partie du quiz.
+            Vous pourrez à tout moment saisir une nouvelle question à la place.
+            Etes-vous sûr de vouloir supprimer la question ?
+        </span>
+        <br><br>
+        <div>
+            <button type="button" class="btn btn-primary btn-width mr-1" aria-label="Valid" (click)="onConfirmDeleteQuestion()">
+                <span aria-hidden="true">Supprimer</span>
+            </button>
+            <button type="button" class="btn btn-danger btn-width" aria-label="Close" (click)="bsModalRef.hide()">
+                <span aria-hidden="true">Annuler</span>
+            </button>
         </div>
-      </div>
-  </div>
-</form>
+    </div>
+</ng-template>
 
 <!-- Confirm validation modal template -->
 <ng-template #validationTemplate>

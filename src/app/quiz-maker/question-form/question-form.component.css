@@ -93,15 +93,6 @@ svg {
     }
     
     @media screen and (max-width: 570px) {
-        input[type="text"] {
-            width: 90vw;
-        }
-        
-        textarea {
-            width: 90vw;
-            height: 100px;
-        }
-        
         #previewButton {
             margin: 0 0 4px 0;
         }
@@ -120,7 +111,7 @@ svg {
     height: 40px;
 }
 
-.left:hover polyline, .right:hover polyline{
+.arrow:hover polyline {
     stroke-width: 10;
 }
 

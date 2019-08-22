@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { QuestionState } from './store/reducers/question.reducer';
+import { QuestionState } from './quiz-maker/store/reducers/question.reducer';
 import { delay, startWith, tap } from 'rxjs/operators';
 import { AuthenticationService } from './authentication/services/authentication.service';
 
