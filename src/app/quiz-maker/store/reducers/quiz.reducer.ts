@@ -1,23 +1,21 @@
-import {Question, Quiz} from '../../../model/IQuiz';
+import { Quiz } from '../../../model/IQuiz';
 import {
-    CreateQuizSuccess, DeleteQuizSuccess, FinalizeQuizSuccess,
-    LoadQuizzes, LoadQuizzesSuccess,
-    Login, Logout, UpdateQuizSuccess
+    CreateQuizSuccess, DeleteQuizSuccess, FinalizeQuizSuccess, InviteParticipantSuccess,
+    LoadQuizzes, LoadQuizzesSuccess, UpdateQuizSuccess
 } from '../actions/quiz.actions';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 import { createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
-import {selectQuestionEntities} from './question.reducer';
 
 export interface QuizState  extends EntityState<Quiz> {
     loading: boolean;
-    isAuthenticated: boolean;
+    invitedUsersByQuiz: any[];
 }
 
 export const quizAdapter: EntityAdapter<Quiz> = createEntityAdapter<Quiz>();
 
 export const initialQuizState: QuizState = quizAdapter.getInitialState({
     loading: false,
-    isAuthenticated: false
+    invitedUsersByQuiz: []
 });
 
 /**** Selectors ****/
@@ -36,9 +34,6 @@ export const {
 
 export const getLoading = (state: QuizState): boolean => state.loading;
 export const selectLoading = createSelector(selectQuizState, getLoading);
-
-export const getIsAuthenticated = (state: QuizState): boolean => state.isAuthenticated;
-export const selectIsAuthenticated = createSelector(selectQuizState, getIsAuthenticated);
 
 /**** Reducer ****/
 export const quizReducer = createReducer(
@@ -64,17 +59,22 @@ export const quizReducer = createReducer(
     on(DeleteQuizSuccess,
         (state, {id}) => quizAdapter.removeOne(id, state)
     ),
-    on(Login,
-        state => ({
+    on(InviteParticipantSuccess,
+        (state, {quizId, invitedUser}) => {
+        const invitedUsersByQuiz = state.invitedUsersByQuiz.slice(0);
+        const index = invitedUsersByQuiz.findIndex(i => i.quizId === quizId);
+        let invitedUsers;
+        if (index >= 0) {
+            invitedUsers = [...state.invitedUsersByQuiz[index].invitedUsers, invitedUser];
+            invitedUsersByQuiz[index].invitedUsers = invitedUsers;
+        } else {
+            invitedUsers = [invitedUser];
+            invitedUsersByQuiz.push({quizId, invitedUsers});
+        }
+        return {
             ...state,
-            isAuthenticated: true
-        })
-    ),
-    on(Logout,
-        state => quizAdapter.removeAll({
-            ...state,
-            loading: false,
-            isAuthenticated: false
-        })
+            invitedUsersByQuiz
+        };
+        }
     )
 );

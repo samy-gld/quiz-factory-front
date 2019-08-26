@@ -1,0 +1,41 @@
+<div class="row justify-content-center">
+    <form [formGroup]="inviteForm" (ngSubmit)="onSubmit()">
+        <!-- Form Name -->
+        <h2>Invitez des participants à votre Quiz</h2>
+        <br>
+        <h3>{{ (currentQuiz$ | async).name }}</h3>
+        <!-- Firstname input-->
+        <div class="form-group">
+            <label for="firstname">Son prénom</label>
+            <input class="form-control input-md" formControlName="firstname" id="firstname" name="firstname" type="text">
+            <div *ngIf="firstname.invalid && isSubmitted" class="alert alert-danger">
+                <div *ngIf="firstname.errors.required">Champs obligatoire</div>
+            </div>
+        </div>
+
+        <!-- Lastname input-->
+        <div class="form-group">
+            <label for="lastname">Son nom</label>
+            <input class="form-control input-md" formControlName="lastname" id="lastname" name="lastname" type="lastname">
+            <div *ngIf="lastname.invalid && isSubmitted" class="alert alert-danger">
+                <div *ngIf="lastname.errors.required">Champs obligatoire</div>
+            </div>
+        </div>
+
+        <!-- Email input-->
+        <!-- Text input-->
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input class="form-control input-md" formControlName="email" id="email" name="email" type="text">
+            <div *ngIf="email.invalid && (email.dirty || email.touched) && isSubmitted" class="alert alert-danger">
+                <div *ngIf="email.errors.required">Champs obligatoire</div>
+                <div *ngIf="email.errors.invalidEmail && !email.errors.required">Email invalide</div>
+            </div>
+        </div>
+
+        <!-- Button -->
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary" [disabled]="buttonDisabled">Envoyer l'invitation</button>
+        </div>
+    </form>
+</div>

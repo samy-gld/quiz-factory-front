@@ -19,7 +19,7 @@ import { FinalizeQuiz } from '../store/actions/quiz.actions';
 import { QuizState } from '../store/reducers/quiz.reducer';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap';
 import { PreviewComponent } from '../preview/preview.component';
-import { InvitePartcipantsComponent } from '../invite-partcipants/invite-partcipants.component';
+import { InviteParticipantsComponent } from '../invite-partcipants/invite-participants.component';
 
 @Component({
     selector: 'app-question-form',
@@ -327,7 +327,7 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
             animated: true,
             class: 'custom-modal'
         };
-        this.bsModalRef = this.modalService.show(InvitePartcipantsComponent, initialConfig);
+        this.bsModalRef = this.modalService.show(InviteParticipantsComponent, initialConfig);
         this.bsModalRef.content.name = 'Invite Participants';
         this.bsModalRef.content.closeInvite.subscribe(
             () => this.bsModalRef.hide()

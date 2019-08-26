@@ -6,16 +6,32 @@ import { Quiz } from '../../../model/IQuiz';
 import { mergeMap } from 'rxjs/internal/operators/mergeMap';
 import { Store, select } from '@ngrx/store';
 import {
-    ActionsUnion, CreateQuiz, CreateQuizError, CreateQuizSuccess,
-    DeleteQuiz, DeleteQuizError, DeleteQuizSuccess, FinalizeQuiz,
-    FinalizeQuizError, FinalizeQuizSuccess, LoadQuizzes, LoadQuizzesError,
-    LoadQuizzesSuccess, UpdateQuiz, UpdateQuizError, UpdateQuizSuccess
+    ActionsUnion,
+    CreateQuiz,
+    CreateQuizError,
+    CreateQuizSuccess,
+    DeleteQuiz,
+    DeleteQuizError,
+    DeleteQuizSuccess,
+    FinalizeQuiz,
+    FinalizeQuizError,
+    FinalizeQuizSuccess,
+    InviteParticipant,
+    InviteParticipantError,
+    InviteParticipantSuccess,
+    LoadQuizzes,
+    LoadQuizzesError,
+    LoadQuizzesSuccess,
+    UpdateQuiz,
+    UpdateQuizError,
+    UpdateQuizSuccess
 } from '../actions/quiz.actions';
 import { of } from 'rxjs/internal/observable/of';
 import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
 import { ErrorManagerService } from '../../../services/error-manager.service';
 import { QuizState, selectQuizzes } from '../reducers/quiz.reducer';
+import {InvitedUser} from '../../../model/IInvitedUser';
 
 @Injectable()
 export class QuizEffects {
@@ -101,6 +117,20 @@ export class QuizEffects {
                 .pipe(
                     map((quiz: Quiz) => FinalizeQuizSuccess({quiz})),
                     catchError(err => of(FinalizeQuizError(err)))
+                )
+        )
+    ));
+
+    inviteParticipant$ = createEffect(() => this.actions$.pipe(
+        ofType(InviteParticipant),
+        mergeMap(action =>
+            this.httpClient.post<InvitedUser>(this.ApiUrl + '/invite', JSON.stringify(action.invitedUser), this.httpOptions)
+                .pipe(
+                    map((invitedUser: InvitedUser) => InviteParticipantSuccess({
+                        quizId: action.quizId,
+                        invitedUser
+                    })),
+                    catchError(err => of(InviteParticipantError(err)))
                 )
         )
     ));

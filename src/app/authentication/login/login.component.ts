@@ -4,7 +4,7 @@ import { IUser } from '../../model/IUser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { ErrorManagerService } from '../../services/error-manager.service';
-import {AuthenticationService} from '../services/authentication.service';
+import { AuthenticationService } from '../services/authentication.service';
 
 @Component({
     selector: 'app-login',

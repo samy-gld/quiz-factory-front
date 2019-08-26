@@ -1,5 +1,6 @@
 import { createAction, props, union } from '@ngrx/store';
 import { Quiz } from '../../../model/IQuiz';
+import {InvitedUser} from '../../../model/IInvitedUser';
 
 export const LoadQuizzes = createAction(
     '[Quiz] Load Quizzes',
@@ -76,12 +77,19 @@ export const FinalizeQuizError = createAction(
     props<{error: any}>()
 );
 
-export const Login = createAction(
-    '[Authentication] Authenticate user'
+export const InviteParticipant = createAction(
+    '[Quiz] Invite a participant',
+    props<{quizId: number, invitedUser: InvitedUser}>()
 );
 
-export const Logout = createAction(
-    '[Authentication] Disconnect user'
+export const InviteParticipantSuccess = createAction(
+    '[Quiz] Invite a participant Success',
+    props<{quizId: number, invitedUser: InvitedUser}>()
+);
+
+export const InviteParticipantError = createAction(
+    '[Quiz] Invite a participant Error',
+    props<{error: any}>()
 );
 
 const actions = union({
@@ -90,7 +98,7 @@ const actions = union({
     UpdateQuiz, UpdateQuizSuccess, UpdateQuizError,
     DeleteQuiz, DeleteQuizSuccess, DeleteQuizError,
     FinalizeQuiz, FinalizeQuizSuccess, FinalizeQuizError,
-    Login, Logout
+    InviteParticipant, InviteParticipantSuccess, InviteParticipantError
 });
 
 export type ActionsUnion = typeof actions;

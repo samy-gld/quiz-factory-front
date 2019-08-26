@@ -4,7 +4,7 @@ import { QuizFormComponent } from './quiz-form/quiz-form.component';
 import { QuizListComponent } from './quiz-list/quiz-list.component';
 import { PreviewComponent } from './preview/preview.component';
 import { QuestionFormComponent } from './question-form/question-form.component';
-import { InvitePartcipantsComponent } from './invite-partcipants/invite-partcipants.component';
+import { InviteParticipantsComponent } from './invite-partcipants/invite-participants.component';
 
 const routes: Routes = [
     {
@@ -30,7 +30,7 @@ const routes: Routes = [
     },
     {
         path: 'invite',
-        component: InvitePartcipantsComponent
+        component: InviteParticipantsComponent
     }
 ];
 
