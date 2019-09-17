@@ -15,7 +15,7 @@ import {
     QuestionState, selectCountQuestions, selectCurrentQuestion,
     selectCurrentQuestionPosition, selectCurrentQuiz, selectErrorSaving, selectLoading, selectSavePendingQuestions
 } from '../store/reducers/question.reducer';
-import { FinalizeQuiz } from '../store/actions/quiz.actions';
+import {FinalizeQuiz, LoadInvitations} from '../store/actions/quiz.actions';
 import { QuizState } from '../store/reducers/quiz.reducer';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap';
 import { PreviewComponent } from '../preview/preview.component';
@@ -105,6 +105,9 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
             skipWhile(quiz => quiz === null),
             map(quiz => {
                 this.quizFinalized = quiz && quiz.status === 'finalized';
+                if (this.quizFinalized) {
+                    this.quizStore.dispatch(LoadInvitations({id: quiz.id}));
+                }
                 this.initFormQuestion();
                 return quiz;
             })
@@ -125,8 +128,10 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
                 map((savePendingQuestions) => {
                     const index = savePendingQuestions.findIndex(p => p.position === this.questionPosition);
                     switch (true) {
+                        case this.quizFinalized:
+                            return 'finalized';
                         case index >= 0:
-                            return savePendingQuestions[index].action;
+                            return savePendingQuestions[index].action; // 'saving' or 'deleting'
                         case this.currentQuestion !== null:
                             return 'saved';
                         default:
@@ -152,7 +157,7 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
         const propTabLength = propTab.length >= this.typeLength[type] ? propTab.length : this.typeLength[type];
 
         if (propTabLength !== 0) {
-            propTab.sort((a, b) => a.position - b.position);
+            // propTab.sort((a, b) => a.position - b.position);
             for (let i = 0; i < propTabLength; i++) {
                 let id: number;
                 let position: number;
@@ -316,10 +321,6 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
         } else {
             this.bsModalRef = this.modalService.show(this.violationTpl, {animated: true});
         }
-    }
-
-    onCancelValidation(): void {
-        this.bsModalRef.hide();
     }
 
     onInvite(): void {

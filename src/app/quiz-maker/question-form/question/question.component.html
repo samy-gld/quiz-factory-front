@@ -2,38 +2,40 @@
       name="questionForm" class="row d-flex justify-content-around">
 
     <div class="row">
-        <div class="form-group col-12 m-0 p-0 text-center">
-            <div class="form-group text-center">
+        <div class="col-12 m-0 p-0 text-center">
+            <div class="form-group text-center mb-0" id="question-form-group">
                 <label for="questionLabel"><h4>Intitulé de la question</h4></label>
-                <textarea class="form-control input-md" style="resize: none;" id="questionLabel"
+                <textarea class="form-control" style="resize: none;" id="questionLabel"
                           formControlName="questionLabel" maxlength="300" #labelLength></textarea>
                 <span class="text-right form-text" id="spanCar" style="color: #2B3E50;font-size: 0.7rem"><code>{{ labelLength.value.length }}</code> / 300 &nbsp;</span>
+
+                <div class="radio-form">
+                    <div class="form-group">
+                        <div class="btn-group btn-group-toggle radio-dimension" data-toggle="buttons" btnRadioGroup formControlName="questionType">
+                            <label btnRadio="duo" class="btn btn-primary" tabindex="0" [disabled]="quizFinalized">
+                                <input type="radio" value="duo" name="questionType" id="duo" (change)="updateQuestionType($event)" [disabled]="quizFinalized">
+                                Duo
+                            </label>
+                            <label btnRadio="carre" class="btn btn-primary" tabindex="0" [disabled]="quizFinalized">
+                                <input type="radio" value="carre" name="questionType" id="carre" (change)="updateQuestionType($event)" [disabled]="quizFinalized">
+                                Carré
+                            </label>
+                            <label btnRadio="qcm" class="btn btn-primary" tabindex="0" [disabled]="quizFinalized">
+                                <input type="radio" value="qcm" name="questionType" id="qcm" (change)="updateQuestionType($event)" [disabled]="quizFinalized">
+                                QCM
+                            </label>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger btn-dimension" (click)="deleteQuestion()" [disabled]="!currentQuestion || quizFinalized">Supprimer</button>
+                </div>
             </div>
-            <div class="form-group d-flex radio-form text-center">
-                <div class="custom-control custom-radio col-4">
-                    <input id="duo" type="radio" value="duo" name="questionType" class="custom-control-input"
-                           formControlName="questionType" (change)="updateQuestionType($event)" >
-                    <label class="custom-control-label" for="duo">Duo</label>
-                </div>
-                <div class="custom-control custom-radio col-4">
-                    <input id="carre" type="radio" value="carre" name="questionType" class="custom-control-input"
-                           formControlName="questionType" (change)="updateQuestionType($event)" >
-                    <label class="custom-control-label" for="carre">Carré</label>
-                </div>
-                <div class="custom-control custom-radio col-4">
-                    <input id="qcm" type="radio" value="qcm" name="questionType" class="custom-control-input"
-                           formControlName="questionType" (change)="updateQuestionType($event)" >
-                    <label class="custom-control-label" for="qcm">QCM</label>
-                </div>
-            </div>
-            <button class="btn btn-primary btn-dimension" (click)="deleteQuestion()" [disabled]="!currentQuestion">Supprimer</button>
         </div>
     </div>
 
     <div class="row d-block"  formArrayName="propositions">
         <h4 class="text-center">Propositions</h4>
 
-        <div style="padding-top: 1em" *ngFor="let propositionGroup of (propositions | async); let i = index">
+        <div style="padding-top: 0.5em" *ngFor="let propositionGroup of (propositions | async); let i = index">
 
             <div class="prop-display" [formGroupName]="i">
                 <div class="custom-control custom-checkbox">

@@ -68,9 +68,7 @@ export class RegistrationComponent implements OnInit {
         this.authenticationService.register(user)
             .pipe(first())
             .subscribe(
-                () => {
-                    this.registered = true;
-                },
+                () => this.registered = true,
                 error => {
                     this.buttonDisabled = false;
                     this.errorManager.manageError(error);

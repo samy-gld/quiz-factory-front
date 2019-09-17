@@ -1,16 +1,27 @@
-import {RouterModule, Routes} from '@angular/router';
-import {NgModule} from '@angular/core';
-import {HttpClientModule} from '@angular/common/http';
-import {AuthenticationGuard} from './authentication/services/authentication.guard';
+import { RouterModule, Routes } from '@angular/router';
+import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+import { AuthenticationGuard } from './authentication/services/authentication.guard';
 
 export const AppRoutes: Routes = [
     {
         path: 'quiz',
         canActivate: [AuthenticationGuard],
         loadChildren: () => import('./quiz-maker/quiz-maker.module').then(
-            mod => mod.QuizMakerModule
+            m => m.QuizMakerModule
         )
     },
+    {
+        path: 'execute',
+        loadChildren: () => import('./quiz-execution/quiz-execution.module').then(
+            m => m.QuizExecutionModule
+        )
+    },
+    {
+        path: 'stats',
+        canActivate: [AuthenticationGuard],
+        loadChildren: () => import('./statistics/statistics.module').then(
+            m => m.StatisticsModule) },
     {
         path: '',
         redirectTo: '/',

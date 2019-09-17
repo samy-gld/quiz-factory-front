@@ -37,7 +37,7 @@ export class QuizFormComponent implements OnInit {
                 take(1)
             ).subscribe(
                 quiz => {
-                    this.quiz = quiz;
+                    this.quiz = Object.assign({}, quiz);
                     this.loadingQuiz = false;
                 }
             );

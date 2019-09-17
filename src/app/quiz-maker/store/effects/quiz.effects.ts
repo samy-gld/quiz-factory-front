@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, map, withLatestFrom } from 'rxjs/operators';
+import {catchError, map, switchMap, withLatestFrom} from 'rxjs/operators';
 import { Quiz } from '../../../model/IQuiz';
 import { mergeMap } from 'rxjs/internal/operators/mergeMap';
 import { Store, select } from '@ngrx/store';
@@ -18,7 +18,7 @@ import {
     FinalizeQuizSuccess,
     InviteParticipant,
     InviteParticipantError,
-    InviteParticipantSuccess,
+    InviteParticipantSuccess, LoadInvitations, LoadInvitationsError, LoadInvitationsSuccess,
     LoadQuizzes,
     LoadQuizzesError,
     LoadQuizzesSuccess,
@@ -31,7 +31,7 @@ import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
 import { ErrorManagerService } from '../../../services/error-manager.service';
 import { QuizState, selectQuizzes } from '../reducers/quiz.reducer';
-import {InvitedUser} from '../../../model/IInvitedUser';
+import { Invitation } from '../../../model/IInvitation';
 
 @Injectable()
 export class QuizEffects {
@@ -62,7 +62,7 @@ export class QuizEffects {
 
                 return this.httpClient.get<Quiz[]>(this.ApiUrl + '/quiz').pipe(
                     map((q: Quiz[]) => LoadQuizzesSuccess({quizzes: q})),
-                    catchError(err => of(LoadQuizzesError(err)))
+                    catchError(err => of(LoadQuizzesError({error: err.error.message})))
                 );
             }
         )
@@ -74,7 +74,7 @@ export class QuizEffects {
             this.httpClient.post<Quiz>(this.ApiUrl + '/quiz', JSON.stringify(action.quiz), this.httpOptions)
             .pipe(
                 map((quiz: Quiz) => CreateQuizSuccess({quiz})),
-                catchError(err => of(CreateQuizError(err)))
+                catchError(err => of(CreateQuizError({error: err.error.message})))
             )
         )
     ));
@@ -93,7 +93,7 @@ export class QuizEffects {
             this.httpClient.patch<Quiz>(this.ApiUrl + '/quiz/' + action.quiz.id, JSON.stringify(action.quiz), this.httpOptions)
                 .pipe(
                     map((quiz: Quiz) => UpdateQuizSuccess({quiz})),
-                    catchError(err => of(UpdateQuizError(err)))
+                    catchError(err => of(UpdateQuizError({error: err.error.message})))
                 )
         )
     ));
@@ -105,7 +105,7 @@ export class QuizEffects {
             (id: number) => this.httpClient.delete(this.ApiUrl + '/quiz/' + id)
             .pipe(
                 map(() => DeleteQuizSuccess({id})),
-                catchError(err => of(DeleteQuizError(err)))
+                catchError(err => of(DeleteQuizError({error: err.error.message})))
             )
         )
     ));
@@ -116,21 +116,28 @@ export class QuizEffects {
             this.httpClient.patch<Quiz>(this.ApiUrl + '/quiz/' + action.id, {status: 'finalized'}, this.httpOptions)
                 .pipe(
                     map((quiz: Quiz) => FinalizeQuizSuccess({quiz})),
-                    catchError(err => of(FinalizeQuizError(err)))
+                    catchError(err => of(FinalizeQuizError({error: err.error.message})))
                 )
+        )
+    ));
+
+    loadInvitations = createEffect(() => this.actions$.pipe(
+        ofType(LoadInvitations),
+        switchMap(action =>
+            this.httpClient.get<Invitation[]>(this.ApiUrl + '/quiz/' + action.id + '/invitations').pipe(
+                map(invitations => LoadInvitationsSuccess({invitations})),
+                catchError(err => of(LoadInvitationsError({error: err.error.message})))
+            )
         )
     ));
 
     inviteParticipant$ = createEffect(() => this.actions$.pipe(
         ofType(InviteParticipant),
         mergeMap(action =>
-            this.httpClient.post<InvitedUser>(this.ApiUrl + '/invite', JSON.stringify(action.invitedUser), this.httpOptions)
+            this.httpClient.post<Invitation>(this.ApiUrl + '/invitation', JSON.stringify(action.invitation), this.httpOptions)
                 .pipe(
-                    map((invitedUser: InvitedUser) => InviteParticipantSuccess({
-                        quizId: action.quizId,
-                        invitedUser
-                    })),
-                    catchError(err => of(InviteParticipantError(err)))
+                    map((invitation: Invitation) => InviteParticipantSuccess({invitation})),
+                    catchError(err => of(InviteParticipantError({error: err.error.message})))
                 )
         )
     ));
@@ -138,7 +145,7 @@ export class QuizEffects {
     // Api Call errors management or expired Token
     ApiCallError = createEffect(() => this.actions$.pipe(
         ofType(LoadQuizzesError, CreateQuizError, UpdateQuizError, DeleteQuizError, FinalizeQuizError),
-        map(error => this.errorManager.manageError(error))
+        map(errorMessage => this.errorManager.manageError(errorMessage))
         ),
         { dispatch: false}
     );

@@ -5,27 +5,10 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, filter, map, mergeMap, switchMap } from 'rxjs/operators';
 import { Proposition, Question, Quiz } from '../../../model/IQuiz';
 import {
-    ActionsUnion,
-    CreateProposition,
-    CreatePropositionError,
-    CreatePropositionSuccess,
-    CreateQuestion,
-    CreateQuestionError,
-    CreateQuestionSuccess,
-    DeleteProposition,
-    DeletePropositionError,
-    DeletePropositionSuccess,
-    UpdateProposition,
-    UpdatePropositionError,
-    UpdatePropositionSuccess,
-    UpdateQuestion,
-    UpdateQuestionError,
-    UpdateQuestionSuccess,
-    LoadQuiz,
-    LoadQuizError,
-    LoadQuizSuccess,
-    DeleteQuestion,
-    DeleteQuestionSuccess, DeleteQuestionError
+    ActionsUnion, CreateProposition, CreatePropositionError, CreatePropositionSuccess, CreateQuestion,
+    CreateQuestionError, CreateQuestionSuccess, DeleteProposition, DeletePropositionError, DeletePropositionSuccess,
+    UpdateProposition, UpdatePropositionError, UpdatePropositionSuccess, UpdateQuestion, UpdateQuestionError,
+    UpdateQuestionSuccess, LoadQuiz, LoadQuizError, LoadQuizSuccess, DeleteQuestion, DeleteQuestionSuccess, DeleteQuestionError
 } from '../actions/question.actions';
 import { of } from 'rxjs';
 import { ErrorManagerService } from '../../../services/error-manager.service';
@@ -52,7 +35,7 @@ export class QuestionEffects {
                 this.httpClient.get<Quiz>(this.ApiUrl + '/quiz/' + id)
                     .pipe(
                         map((quiz: Quiz) => LoadQuizSuccess({quiz})),
-                        catchError(error => of(LoadQuizError(error)))
+                        catchError(err => of(LoadQuizError({error: err.error.message})))
                     )
         )
     ));
@@ -64,8 +47,7 @@ export class QuestionEffects {
                     JSON.stringify(question), this.httpOptions)
                     .pipe(
                         map((result: Question) => CreateQuestionSuccess({question: result})),
-                        catchError(
-                            err => of(CreateQuestionError(err)))
+                        catchError(err => of(CreateQuestionError({error: err.error.message})))
                     )
         )
     ));
@@ -77,7 +59,7 @@ export class QuestionEffects {
                 JSON.stringify(action.question), this.httpOptions)
                 .pipe(
                     map((question: Question) => UpdateQuestionSuccess({question: {id: question.position, changes: question}})),
-                    catchError(err => of(UpdateQuestionError(err)))
+                    catchError(err => of(UpdateQuestionError({error: err.error.message})))
                 )
         )
     ));
@@ -89,7 +71,7 @@ export class QuestionEffects {
                     return this.httpClient.delete(this.ApiUrl + '/question/' + action.id)
                         .pipe(
                             map(() => DeleteQuestionSuccess({questionPosition: action.questionPosition})),
-                            catchError(err => of(DeleteQuestionError(err)))
+                            catchError(err => of(DeleteQuestionError({error: err.error.message})))
                         );
                 } else {
                     return of(DeleteQuestionSuccess({questionPosition: action.questionPosition}));
@@ -107,7 +89,7 @@ export class QuestionEffects {
                 .pipe(
                     map((result: Proposition) => CreatePropositionSuccess({questionPosition, proposition: result, index})
                     ),
-                    catchError(err => of(CreatePropositionError(err)))
+                    catchError(err => of(CreatePropositionError({error: err.error.message})))
                 )
         )
     ));
@@ -120,7 +102,7 @@ export class QuestionEffects {
                     JSON.stringify(proposition), this.httpOptions)
                 .pipe(
                     map((result: Proposition) => UpdatePropositionSuccess({questionPosition, id, proposition: result, index})),
-                    catchError(err => of(UpdatePropositionError(err)))
+                    catchError(err => of(UpdatePropositionError({error: err.error.message})))
                 )
         )
     ));
@@ -131,7 +113,7 @@ export class QuestionEffects {
             this.httpClient.delete(this.ApiUrl + '/proposition/' + propositionId)
                 .pipe(
                     map(() => DeletePropositionSuccess({questionPosition, propositionId})),
-                    catchError(err => of(DeletePropositionError(err)))
+                    catchError(err => of(DeletePropositionError({error: err.error.message})))
                 )
         )
     ));
@@ -140,7 +122,7 @@ export class QuestionEffects {
     ApiCallError = createEffect(() => this.actions$.pipe(
         ofType(LoadQuizError, CreateQuestionError, UpdateQuestionError, CreatePropositionError,
             UpdatePropositionError, DeletePropositionError),
-        map(error => this.errorManager.manageError(error))
+        map(errorMessage => this.errorManager.manageError(errorMessage))
         ),
         { dispatch: false}
     );

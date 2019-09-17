@@ -1,12 +1,14 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { InvitedUser } from '../../model/IInvitedUser';
+import { Invitation } from '../../model/IInvitation';
 import { Quiz } from '../../model/IQuiz';
 import { Store } from '@ngrx/store';
 import { QuestionState, selectCurrentQuiz } from '../store/reducers/question.reducer';
 import { Observable } from 'rxjs';
-import {InviteParticipant} from '../store/actions/quiz.actions';
+import { InviteParticipant } from '../store/actions/quiz.actions';
 import { tap } from 'rxjs/operators';
+import { QuizState, selectInvitations } from '../store/reducers/quiz.reducer';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-invite-participants',
@@ -17,21 +19,24 @@ export class InviteParticipantsComponent implements OnInit {
 
     @Output() closeInvite: EventEmitter<boolean> = new EventEmitter<boolean>();
     currentQuiz$: Observable<Quiz>;
+    invitations$: Observable<Invitation[]>;
     inviteForm: FormGroup;
     buttonDisabled = false;
     isSubmitted = false;
     currentQuizId: number;
+    executionUrl = environment.SelfUrl + '/execute';
 
-    constructor(private questionStore: Store<QuestionState>) { }
+    constructor(private questionStore: Store<QuestionState>,
+                private quizStore: Store<QuizState>) { }
 
     ngOnInit() {
-        this.currentQuiz$ = this.questionStore.select(selectCurrentQuiz)
-            .pipe(
-                tap(quiz => this.currentQuizId = quiz.id)
-            );
+        this.currentQuiz$ = this.questionStore.select(selectCurrentQuiz).pipe(
+            tap(quiz => this.currentQuizId = quiz.id)
+        );
+        this.invitations$ = this.quizStore.select(selectInvitations);
         this.inviteForm = new FormGroup({
-            firstname: new FormControl('', [Validators.required]),
-            lastname: new FormControl('', [Validators.required]),
+            firstname: new FormControl('', [Validators.required, Validators.minLength(4)]),
+            lastname: new FormControl('', [Validators.required, Validators.minLength(4)]),
             email: new FormControl('', [Validators.required, validateEmail])
         });
     }
@@ -53,14 +58,16 @@ export class InviteParticipantsComponent implements OnInit {
         if (this.inviteForm.invalid) {
             return;
         }
-        this.buttonDisabled = true;
+        // this.buttonDisabled = true;
 
-        const invitedUser: InvitedUser = {
+        const invitation: Invitation = {
             firstname: this.firstname.value,
             lastname: this.lastname.value,
-            email: this.email.value
+            email: this.email.value,
+            // token: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+            quiz: this.currentQuizId
         };
-        this.questionStore.dispatch(InviteParticipant({quizId: this.currentQuizId, invitedUser}));
+        this.questionStore.dispatch(InviteParticipant({invitation}));
     }
 }
 

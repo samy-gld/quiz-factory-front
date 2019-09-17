@@ -5,33 +5,15 @@ import { QuizListComponent } from './quiz-list/quiz-list.component';
 import { PreviewComponent } from './preview/preview.component';
 import { QuestionFormComponent } from './question-form/question-form.component';
 import { InviteParticipantsComponent } from './invite-partcipants/invite-participants.component';
+import { AuthenticationGuard } from '../authentication/services/authentication.guard';
 
 const routes: Routes = [
-    {
-        path: 'edit',
-        component: QuizFormComponent
-    },
-    {
-        path: 'edit/:id',
-        component: QuizFormComponent
-    },
-    {
-        path: 'list',
-        component: QuizListComponent
-    },
-    {
-        path: 'preview/:id',
-        component: PreviewComponent
-    },
-    {
-        path: 'generate/:id',
-        component: QuestionFormComponent
-        // runGuardsAndResolvers: 'always'
-    },
-    {
-        path: 'invite',
-        component: InviteParticipantsComponent
-    }
+    { path: 'edit',         canActivate: [AuthenticationGuard], component: QuizFormComponent },
+    { path: 'edit/:id',     canActivate: [AuthenticationGuard], component: QuizFormComponent },
+    { path: 'list',         canActivate: [AuthenticationGuard], component: QuizListComponent },
+    { path: 'preview/:id',  canActivate: [AuthenticationGuard], component: PreviewComponent },
+    { path: 'generate/:id', canActivate: [AuthenticationGuard], component: QuestionFormComponent },
+    { path: 'invite',       canActivate: [AuthenticationGuard], component: InviteParticipantsComponent }
 ];
 
 @NgModule({

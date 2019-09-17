@@ -1,0 +1,15 @@
+<div *ngIf="(results$ | async) as results; else spinner" class="container-fluid d-flex" style="height: 80vh">
+    <div class="text-center m-auto" [ngClass]="{'text-danger': results.average <= 0.4,
+                                                'text-primary': results.average > 0.4 && results.average < 0.75,
+                                                'text-success': results.average >= 0.75}">
+        <h5>Votre résultat :</h5>
+        <br>
+        <h3>{{ results.result }}</h3>
+        <hr style="border:1px solid white; width: 60px;">
+        <h3>{{ results.count }}</h3>
+    </div>
+</div>
+
+<ng-template #spinner>
+    <div class="loader">Loading...</div>
+</ng-template>

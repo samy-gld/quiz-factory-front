@@ -1,6 +1,6 @@
 import { createAction, props, union } from '@ngrx/store';
 import { Quiz } from '../../../model/IQuiz';
-import {InvitedUser} from '../../../model/IInvitedUser';
+import { Invitation } from '../../../model/IInvitation';
 
 export const LoadQuizzes = createAction(
     '[Quiz] Load Quizzes',
@@ -13,7 +13,7 @@ export const LoadQuizzesSuccess = createAction(
 
 export const LoadQuizzesError = createAction(
     '[Quiz] Load Quizzes Error',
-    props<{error: any}>()
+    props<{error: string}>()
 );
 
 export const DeleteQuiz = createAction(
@@ -28,7 +28,7 @@ export const DeleteQuizSuccess = createAction(
 
 export const DeleteQuizError = createAction(
     '[Quiz] Delete Quiz Error',
-    props<{error: any}>()
+    props<{error: string}>()
 );
 
 export const CreateQuiz = createAction(
@@ -43,7 +43,7 @@ export const CreateQuizSuccess = createAction(
 
 export const CreateQuizError = createAction(
     '[Quiz] Create a Quiz Error',
-    props<{error: any}>()
+    props<{error: string}>()
 );
 
 export const UpdateQuiz = createAction(
@@ -58,7 +58,7 @@ export const UpdateQuizSuccess = createAction(
 
 export const UpdateQuizError = createAction(
     '[Quiz] Update a Quiz Error',
-    props<{error: any}>()
+    props<{error: string}>()
 );
 
 
@@ -74,22 +74,37 @@ export const FinalizeQuizSuccess = createAction(
 
 export const FinalizeQuizError = createAction(
     '[Quiz] Finalize Quiz Error',
-    props<{error: any}>()
+    props<{error: string}>()
+);
+
+export const LoadInvitations = createAction(
+    '[Quiz] Load Invitations',
+    props<{id: number}>()
+);
+
+export const LoadInvitationsSuccess = createAction(
+    '[Quiz] Load Invitations Success',
+    props<{invitations: Invitation[]}>()
+);
+
+export const LoadInvitationsError = createAction(
+    '[Quiz] Load Invitations Error',
+    props<{error: string}>()
 );
 
 export const InviteParticipant = createAction(
     '[Quiz] Invite a participant',
-    props<{quizId: number, invitedUser: InvitedUser}>()
+    props<{invitation: Invitation}>()
 );
 
 export const InviteParticipantSuccess = createAction(
     '[Quiz] Invite a participant Success',
-    props<{quizId: number, invitedUser: InvitedUser}>()
+    props<{invitation: Invitation}>()
 );
 
 export const InviteParticipantError = createAction(
     '[Quiz] Invite a participant Error',
-    props<{error: any}>()
+    props<{error: string}>()
 );
 
 const actions = union({
@@ -98,6 +113,7 @@ const actions = union({
     UpdateQuiz, UpdateQuizSuccess, UpdateQuizError,
     DeleteQuiz, DeleteQuizSuccess, DeleteQuizError,
     FinalizeQuiz, FinalizeQuizSuccess, FinalizeQuizError,
+    LoadInvitations, LoadInvitationsSuccess, LoadInvitationsError,
     InviteParticipant, InviteParticipantSuccess, InviteParticipantError
 });
 

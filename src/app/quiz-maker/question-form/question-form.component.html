@@ -1,9 +1,4 @@
-<div *ngIf="loadingQuestion | async" style="width: 100%; padding-top: 25vh; display: flex; align-content: center">
-    <svg id="icon-reload" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z" />
-      <path d="M0 0h24v24H0z" fill="none" />
-    </svg>
-</div>
+<div *ngIf="loadingQuestion | async" class="loader">Loading...</div>
 
 <div *ngIf="!(loadingQuestion | async) && (currentQuiz$ | async) as currentQuiz" class="container-fluid">
     <div class="jumbotron d-flex w-100 justify-content-between p-4 m-2" id="head">
@@ -48,6 +43,7 @@
         <div *ngSwitchCase="'saved'" class="text-center"><span class="badge badge-pill badge-success">Sauvegardée</span></div>
         <div *ngSwitchCase="'unsaved'" class="text-center"><span class="badge badge-pill badge-secondary">Non sauvegardée</span></div>
         <div *ngSwitchCase="'deleting'" class="text-center"><span class="badge badge-pill badge-primary">Suppression en cours</span></div>
+        <div *ngSwitchCase="'finalized'" class="text-center"><span class="badge badge-success">Quiz finalisé</span></div>
     </div>
 </div>
 
@@ -55,6 +51,7 @@
     *ngIf="!(loadingQuestion | async) && (questionForm$ | async)"
     [questionForm$]="questionForm$"
     [currentQuestion]="currentQuestion"
+    [quizFinalized]="quizFinalized"
     (deleteQuestionEvent)="onDeleteQuestion()"
 ></app-question>
 
@@ -100,7 +97,7 @@
             <button type="button" class="btn btn-primary btn-width mr-1" aria-label="Valid" (click)="onConfirmValidation()">
                 <span aria-hidden="true">Valider</span>
             </button>
-            <button type="button" class="btn btn-danger btn-width" aria-label="Close" (click)="onCancelValidation()">
+            <button type="button" class="btn btn-danger btn-width" aria-label="Close" (click)="bsModalRef.hide()">
                 <span aria-hidden="true">Annuler</span>
             </button>
         </div>

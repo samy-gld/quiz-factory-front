@@ -16,7 +16,7 @@ import { Observable } from 'rxjs';
 export class PreviewComponent implements OnInit {
     @Output() closePreview: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    currentQuestion: Observable<Question>;
+    currentQuestion$: Observable<Question>;
     positionsTab: number[] | string[];
     positionIterator: IterableIterator<number|string>;
     nextPosition: IteratorResult<number|string>;
@@ -50,14 +50,12 @@ export class PreviewComponent implements OnInit {
         this.answered = false;
         this.displayNextButton = {display: 'none'};
 
-        if (!this.nextPosition.done) {
-            this.currentQuestion = this.questionStore.pipe(
-                select(selectQuestionByPosition(this.nextPosition.value)),
-                tap(
-                    (question) => this.nbProposition = question.propositions.length
-                )
-            );
-        }
+        this.currentQuestion$ = this.questionStore.pipe(
+            select(selectQuestionByPosition(this.nextPosition.value)),
+            tap(
+                question => this.nbProposition = question.propositions.length
+            )
+        );
 
         this.nextPosition = this.positionIterator.next();
         if (this.nextPosition.done) {
@@ -77,7 +75,7 @@ export class PreviewComponent implements OnInit {
         }
         this.answered = true;
         this.displayNextButton = {display: 'block'};
-        this.currentQuestion.subscribe(
+        this.currentQuestion$.subscribe(
             (question: Question) => {
                 const borderRadius = question.type === 'qcm' ? '5px' : '25px';
                 for (let i = 0; i < question.propositions.length; i++) {

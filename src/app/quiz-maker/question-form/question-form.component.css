@@ -47,57 +47,6 @@ svg {
     margin: auto;
 }
 
-#icon-reload {
-    -webkit-animation: reload 2s steps(4) infinite;
-    animation: reload 2s steps(4) infinite;
-    -webkit-transform-origin: 50% 50%;
-    transform-origin: 50% 50%;
-    width: 40px;
-    height: 40px;
-  }
-
-
-  @-webkit-keyframes reload {
-    0% {
-      -webkit-transform: rotate(0deg);
-      transform: rotate(0deg);
-    }
-
-    100% {
-      -webkit-transform: rotate(360deg);
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes reload {
-    0% {
-      -webkit-transform: rotate(0deg);
-      transform: rotate(0deg);
-    }
-
-    100% {
-      -webkit-transform: rotate(360deg);
-      transform: rotate(360deg);
-    }
-  }
-
-    @media screen and (max-width: 700px) {
-        #divButtons {
-            position: relative;
-        }
-
-        #head {
-            flex-direction: column;
-            align-items: center;
-        }
-    }
-    
-    @media screen and (max-width: 570px) {
-        #previewButton {
-            margin: 0 0 4px 0;
-        }
-    }
-
 .arrow {
     -webkit-appearance: none;
     background: transparent;
@@ -117,4 +66,21 @@ svg {
 
 polyline {
     transition: all 250ms ease-in-out;
+}
+
+@media screen and (max-width: 700px) {
+    #divButtons {
+        position: relative;
+    }
+
+    #head {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media screen and (max-width: 570px) {
+    #previewButton {
+        margin: 0 0 4px 0;
+    }
 }

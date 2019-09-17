@@ -1,14 +1,15 @@
 import { Quiz } from '../../../model/IQuiz';
 import {
-    CreateQuizSuccess, DeleteQuizSuccess, FinalizeQuizSuccess, InviteParticipantSuccess,
+    CreateQuizSuccess, DeleteQuizSuccess, FinalizeQuizSuccess, InviteParticipantSuccess, LoadInvitationsSuccess,
     LoadQuizzes, LoadQuizzesSuccess, UpdateQuizSuccess
 } from '../actions/quiz.actions';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 import { createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
+import { Invitation } from '../../../model/IInvitation';
 
 export interface QuizState  extends EntityState<Quiz> {
     loading: boolean;
-    invitedUsersByQuiz: any[];
+    invitedUsersByQuiz: Invitation[];
 }
 
 export const quizAdapter: EntityAdapter<Quiz> = createEntityAdapter<Quiz>();
@@ -21,7 +22,7 @@ export const initialQuizState: QuizState = quizAdapter.getInitialState({
 /**** Selectors ****/
 export const selectQuizState =
     createFeatureSelector<QuizState>('quizzes');
-export const selectAllQuizzess = createSelector(
+export const selectAllQuizzes = createSelector(
     selectQuizState,
     (state: QuizState) => state
 );
@@ -30,10 +31,13 @@ export const {
     selectEntities: selectQuizEntities,
     selectAll: selectQuizzes,
     selectTotal: countQuizzes
-} = quizAdapter.getSelectors(selectAllQuizzess);
+} = quizAdapter.getSelectors(selectAllQuizzes);
 
 export const getLoading = (state: QuizState): boolean => state.loading;
 export const selectLoading = createSelector(selectQuizState, getLoading);
+
+export const getInvitations = (state: QuizState): Invitation[] => state.invitedUsersByQuiz;
+export const selectInvitations = createSelector(selectQuizState, getInvitations);
 
 /**** Reducer ****/
 export const quizReducer = createReducer(
@@ -59,22 +63,16 @@ export const quizReducer = createReducer(
     on(DeleteQuizSuccess,
         (state, {id}) => quizAdapter.removeOne(id, state)
     ),
-    on(InviteParticipantSuccess,
-        (state, {quizId, invitedUser}) => {
-        const invitedUsersByQuiz = state.invitedUsersByQuiz.slice(0);
-        const index = invitedUsersByQuiz.findIndex(i => i.quizId === quizId);
-        let invitedUsers;
-        if (index >= 0) {
-            invitedUsers = [...state.invitedUsersByQuiz[index].invitedUsers, invitedUser];
-            invitedUsersByQuiz[index].invitedUsers = invitedUsers;
-        } else {
-            invitedUsers = [invitedUser];
-            invitedUsersByQuiz.push({quizId, invitedUsers});
-        }
-        return {
+    on(LoadInvitationsSuccess,
+        (state, {invitations}) => ({
             ...state,
-            invitedUsersByQuiz
-        };
-        }
+            invitedUsersByQuiz: invitations
+        })
+    ),
+    on(InviteParticipantSuccess,
+        (state, {invitation}) => ({
+            ...state,
+            invitedUsersByQuiz: [...state.invitedUsersByQuiz, invitation]
+        })
     )
 );

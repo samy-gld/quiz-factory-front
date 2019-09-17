@@ -1,13 +1,13 @@
 <div class="background-modal">
     <div class="jumbotron mt-0 mr-5 mb-5 ml-5 mb-3">
-        <h2>{{ (currentQuestion | async).label }}</h2>
+        <h2>{{ (currentQuestion$ | async).label }}</h2>
     </div>
 
     <div [ngSwitch]="true">
-        <div *ngSwitchCase="(currentQuestion | async).type === 'duo' || (currentQuestion | async).type === 'carre'"
+        <div *ngSwitchCase="(currentQuestion$ | async).type === 'duo' || (currentQuestion$ | async).type === 'carre'"
              class="mt-5 mr-5 ml-5 mb-3">
             <div class="row">
-                <div class="col-sm-12 col-md-6 mb-3" *ngFor="let proposition of (currentQuestion | async).propositions; let i = index;">
+                <div class="col-sm-12 col-md-6 mb-3" *ngFor="let proposition of (currentQuestion$ | async).propositions; let i = index;">
                     <div class="card bg-info text-white text-center proposition" (click)="!answered && onResponse(i)">
                         <div class="card-body" [ngStyle]="responseStyle[i]" >
                             <h5 class="card-title">{{ proposition.label }}</h5>
@@ -17,15 +17,15 @@
             </div>
         </div>
 
-        <div *ngSwitchCase="(currentQuestion | async).type === 'qcm'">
+        <div *ngSwitchCase="(currentQuestion$ | async).type === 'qcm'">
             <div>
                 <div class="row">
                     <p class="text-white font-italic ml-5 mb-0">Plusieurs réponses possibles</p>
                 </div>
                 <ul class="row mt-2 ml-2 mb-3 d-flex">
-                    <li *ngFor="let proposition of (currentQuestion | async).propositions; let i = index;"
-                        class="list-group-item list-group-item-action list-group-item-info m-1 proposition"
-                        style="width: 36vw; height: 3em; border-radius: 3px;"
+                    <li *ngFor="let proposition of (currentQuestion$ | async).propositions; let i = index;"
+                        class="list-group-item list-group-item-action list-group-item-info m-1
+                        proposition proposition-qcm"
                         (click)="!answered && onSelect(i)" [ngStyle]="responseStyle[i]">
                         {{ proposition.label }}
                     </li>

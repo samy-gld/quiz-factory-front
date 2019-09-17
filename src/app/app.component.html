@@ -10,11 +10,22 @@
     <div class="collapse navbar-collapse" id="navbarToggler" [collapse]="isCollapsed">
         <!-- Links -->
         <ul class="navbar-nav mr-auto">
-            <li *ngIf="isAuthenticated | async" class="nav-item" routerLinkActive="active" data-toggle="collapse" data-target=".navbar-collapse.show">
-                <a class="nav-link" routerLink="quiz/list" (click)="isCollapsed = !isCollapsed">Mes Quiz</a>
+            <li *ngIf="isAuthenticated | async" class="nav-item dropdown" routerLinkActive="active" dropdown>
+                <a id="dropAdminButton" aria-controls="dropAdminMenu" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" dropdownToggle>
+                    Espace Création<b class='caret'></b>
+                </a>
+                <ul class="dropdown-menu" id="dropAdminMenu" *dropdownMenu role="menu" aria-labelledby="dropAdminButton">
+                    <li role="menuitem"><a routerLink="quiz/list" routerLinkActive="active" class='dropdown-item'>Mes Quizzes</a></li>
+                    <li role="menuitem"><a routerLink="quiz/edit" routerLinkActive="active" class='dropdown-item'>Créer un Quiz</a></li>
+                </ul>
             </li>
-            <li *ngIf="isAuthenticated | async" class="nav-item" routerLinkActive="active" data-toggle="collapse" data-target=".navbar-collapse.show">
-                <a class="nav-link" routerLink="quiz/edit" (click)="isCollapsed = !isCollapsed">Créer un Quiz</a>
+            <li class="nav-item dropdown" routerLinkActive="active" dropdown>
+                <a id="dropInviteButton" aria-controls="dropInviteMenu" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" dropdownToggle>
+                    Espace Invité<b class='caret'></b>
+                </a>
+                <ul class="dropdown-menu" id="dropInviteMenu" *dropdownMenu role="menu" aria-labelledby="dropInviteButton">
+                    <li role="menuitem"><a routerLink="execute/invitation/" routerLinkActive="active" class='dropdown-item'>Participer à un quiz</a></li>
+                </ul>
             </li>
         </ul>
 

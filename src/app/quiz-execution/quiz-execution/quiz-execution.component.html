@@ -1,0 +1,54 @@
+<div [ngSwitch]="true">
+    <div *ngSwitchCase="loading$ | async" class="loader">Loading...</div>
+    <div *ngSwitchCase="notFound$ | async" class="container-fluid">
+        <h1>Erreur d'adresse !!</h1>
+        <br>
+        <h3>L'URL à laquelle vous tentez d'accéder ne correspond à aucune invitation pour participer à un Quiz</h3>
+        <br>
+        <h5>Veuillez vérifier l'adresse indiquée dans le mail d'invitation</h5>
+    </div>
+    <div *ngSwitchCase="existExecution$ | async" class="container-fluid">
+        <h1>Désolé !!</h1>
+        <br>
+        <h3>Vous avez déjà exécuté votre Quiz</h3>
+        <br>
+        <h5>Vous pouvez toujours contacter l'administrateur du Quiz pour qu'il vous envoie une nouvelle invitation</h5>
+    </div>
+    <div *ngSwitchDefault>
+        <div *ngIf="(currentQuiz$ | async) as currentQuiz" class="container-fluid">
+            <h1>Bienvenue sur Quiz Factory !!</h1>
+            <br>
+            <h3>Vous avez été invité par pour participer à son Quiz</h3>
+            <br>
+            <h5 >Nom du Quiz : {{ currentQuiz.name }}</h5>
+            <h5>Description du Quiz : {{ currentQuiz.description }}</h5>
+            <br>
+            <button type="button" class="btn btn-primary" (click)="onLaunchQuiz()">Lancer le Quiz</button>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm validation modal template -->
+<ng-template #validationLaunchQuizTemplate>
+    <div class="modal-header modal-header-validation">
+        <h4 class="modal-title pull-left text-white">Lancement du Quiz</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+            <span class="text-white" aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body text-center">
+        <span class="mt-2">Attention !!</span>
+        <p>Si vous lancez votre quiz, vous devrez le terminer dans le temps imparti.</p>
+        <p>Si vous quittez le quiz avant sa fin, vous ne pourrez plus le compléter.</p>
+        <p>Etes-vous sûr de vouloir continuer ?</p>
+        <br><br>
+        <div>
+            <button type="button" class="btn btn-primary btn-dimension mr-1" aria-label="Valid" (click)="onConfirmLaunchQuiz()">
+                <span aria-hidden="true">Oui</span>
+            </button>
+            <button type="button" class="btn btn-danger btn-dimension" aria-label="Close" (click)="bsModalRef.hide()">
+                <span aria-hidden="true">Annuler</span>
+            </button>
+        </div>
+    </div>
+</ng-template>

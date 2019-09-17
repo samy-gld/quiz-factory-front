@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { filter, map, tap } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import { Question } from '../../../model/IQuiz';
 
 @Component({
@@ -14,6 +14,7 @@ export class QuestionComponent implements OnInit {
 
   @Input() questionForm$: Observable<FormGroup>;
   @Input() currentQuestion: Question;
+  @Input() quizFinalized: boolean;
   @Output() deleteQuestionEvent: EventEmitter<any> = new EventEmitter<any>();
 
   typeLength = {duo: 2, carre: 4, qcm: 6};
@@ -35,13 +36,11 @@ export class QuestionComponent implements OnInit {
   updateQuestionType(event: any, reset = false): void {
     const type = event.target.value;
     this.questionForm$.pipe(
-        tap(() => console.log('changeDetection')),
         map(
             questionFormGroup => {
               const propArray             = questionFormGroup.get('propositions') as FormArray;
               const currentPropFormLength = propArray.length;
               const diffFields            = this.typeLength[type] - currentPropFormLength;
-
               if (diffFields > 0) {
                 for (let i = 0; i < diffFields; i++) {
                   let id: number;

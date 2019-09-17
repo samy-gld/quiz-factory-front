@@ -11,6 +11,8 @@ import { QuizMakerModule } from './quiz-maker/quiz-maker.module';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { QuizExecutionModule } from './quiz-execution/quiz-execution.module';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 @NgModule({
   declarations: [
@@ -19,12 +21,21 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   imports: [
     BrowserAnimationsModule,
     CollapseModule.forRoot(),
+    BsDropdownModule.forRoot(),
     HttpClientModule,
     ToastrModule.forRoot(),
     AuthenticationModule,
     QuizMakerModule,
+    QuizExecutionModule,
     AppRoutingModule,
-    StoreModule.forRoot({}),
+    StoreModule.forRoot({}, {
+      runtimeChecks: {
+        strictStateImmutability: true,
+        strictActionImmutability: true,
+        strictStateSerializability: true,
+        strictActionSerializability: true,
+      }
+    }),
     EffectsModule.forRoot([]),
     !environment.production ? StoreDevtoolsModule.instrument() : []
   ],

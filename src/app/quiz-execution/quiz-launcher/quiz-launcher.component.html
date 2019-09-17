@@ -1,0 +1,61 @@
+<div class="background-modal">
+    <div *ngIf="!loading; else spinner">
+        <div *ngIf="currentQuestion$ | async" class="jumbotron mt-0 mr-5 mb-3 ml-5 mb-3">
+            <h2>{{ (currentQuestion$ | async).label }}</h2>
+        </div>
+
+        <div *ngIf="currentQuestion$ | async" class="mr-5 ml-5 mb-2 mt-0">
+            <progressbar class="progress-striped active" [value]="typeProgressBar" [max]="100" [striped]="true" [animate]="false"></progressbar>
+        </div>
+
+
+        <div [ngSwitch]="true">
+            <div *ngSwitchCase="!(currentQuestion$ | async)">
+                <app-display-result></app-display-result>
+            </div>
+
+            <div *ngSwitchCase="(currentQuestion$ | async) && ((currentQuestion$ | async).type === 'duo' || (currentQuestion$ | async).type === 'carre')"
+                 class="mt-5 mr-5 ml-5 mb-3">
+                <div class="row">
+                    <div class="col-sm-12 col-md-6 mb-3" *ngFor="let proposition of (currentQuestion$ | async).propositions; let i = index;">
+                        <div class="card bg-info text-white text-center proposition" (click)="!answered && onResponse(i)">
+                            <div class="card-body" [ngStyle]="responseStyle[i]" >
+                                <h5 class="card-title">{{ proposition.label }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngSwitchCase="(currentQuestion$ | async) && (currentQuestion$ | async).type === 'qcm'">
+                <div>
+                    <div class="row">
+                        <p class="text-white font-italic ml-5 mb-0">Plusieurs réponses possibles</p>
+                    </div>
+                    <ul class="row mt-2 ml-2 mb-3 d-flex">
+                        <li *ngFor="let proposition of (currentQuestion$ | async).propositions; let i = index;"
+                            class="list-group-item list-group-item-action list-group-item-info m-1
+                            proposition proposition-qcm"
+                            (click)="!answered && onSelect(i)" [ngStyle]="responseStyle[i]">
+                            {{ proposition.label }}
+                        </li>
+                    </ul>
+                </div>
+                <div class="mb-4">
+                    <button class="btn btn-outline-info ml-auto mr-auto" [ngStyle]="{display: answered ? 'none' : 'block'}"
+                            (click)="!answered && onResponse()">Valider ces réponses</button>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="currentQuestion$ | async" class="d-flex">
+            <div class="mr-auto"></div>
+            <button class="btn mr-5" [ngClass]="buttonClass" [ngStyle]="displayNextButton"
+                    (click)="onNextQuestion()">{{ buttonName }}</button>
+        </div>
+    </div>
+</div>
+
+<ng-template #spinner>
+    <div class="loader">Loading...</div>
+</ng-template>

@@ -5,6 +5,10 @@
     z-index: 1;
 }
 
+.nav-link:hover {
+    cursor: pointer;
+}
+
 section {
     margin: 0;
     padding: 45vh 0 0 0;

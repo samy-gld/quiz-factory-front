@@ -13,9 +13,8 @@ export class ErrorManagerService {
                 private authenticationService: AuthenticationService) {
     }
 
-    manageError(error) {
-        const message = error.error.message;
-        switch (message) {
+    manageError(errorMessage) {
+        switch (errorMessage) {
             case 'Quiz not found':
                 this.toastr.error('Le quiz demandé n\'a pas été trouvé');
                 break;

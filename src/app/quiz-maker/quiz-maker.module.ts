@@ -7,7 +7,6 @@ import { PreviewComponent } from './preview/preview.component';
 import { QuestionService } from './services/question.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ModalModule } from 'ngx-bootstrap';
-import { HttpClientModule } from '@angular/common/http';
 import { QuizMakerRoutingModule } from './quiz-maker-routing.module';
 import { InviteParticipantsComponent } from './invite-partcipants/invite-participants.component';
 import { StoreModule } from '@ngrx/store';
@@ -17,7 +16,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { QuizEffects } from './store/effects/quiz.effects';
 import { QuestionEffects } from './store/effects/question.effects';
 import { QuestionComponent } from './question-form/question/question.component';
-import { QuizExecService } from './services/quiz-exec.service';
+import { ButtonsModule } from 'ngx-bootstrap';
 
 @NgModule({
     declarations: [
@@ -33,21 +32,22 @@ import { QuizExecService } from './services/quiz-exec.service';
         QuizMakerRoutingModule,
         FormsModule,
         ReactiveFormsModule,
+        ButtonsModule,
         ModalModule.forRoot(),
-        HttpClientModule,
         StoreModule.forFeature('quizzes', quizReducer),
         StoreModule.forFeature('questions', questionReducer),
-        EffectsModule.forFeature([QuizEffects, QuestionEffects]),
+        EffectsModule.forFeature([QuizEffects, QuestionEffects])
     ],
     providers: [
-        QuestionService,
-        QuizExecService
+        QuestionService
     ],
     exports: [
         QuizFormComponent,
         QuizListComponent,
         QuestionFormComponent,
-        PreviewComponent
+        PreviewComponent,
+        InviteParticipantsComponent,
+        QuestionComponent
     ]
 })
 export class QuizMakerModule { }

@@ -1,41 +1,61 @@
-<div class="row justify-content-center">
-    <form [formGroup]="inviteForm" (ngSubmit)="onSubmit()">
-        <!-- Form Name -->
-        <h2>Invitez des participants à votre Quiz</h2>
-        <br>
-        <h3>{{ (currentQuiz$ | async).name }}</h3>
-        <!-- Firstname input-->
-        <div class="form-group">
-            <label for="firstname">Son prénom</label>
-            <input class="form-control input-md" formControlName="firstname" id="firstname" name="firstname" type="text">
-            <div *ngIf="firstname.invalid && isSubmitted" class="alert alert-danger">
-                <div *ngIf="firstname.errors.required">Champs obligatoire</div>
+<div class="row m-5 d-block">
+    <div class="jumbotron bg-light p-2">
+        <h2 class="text-center text-black-50">Invitez des participants à votre Quiz</h2>
+        <hr class="my-3">
+        <h3 class="text-center text-primary">{{ (currentQuiz$ | async).name }}</h3>
+    </div>
+    <div class="d-flex">
+        <form [formGroup]="inviteForm" (ngSubmit)="onSubmit()" class="w-50 mt-0 ml-2 mr-5">
+            <div class="row justify-content-center">
+                <h4 class="text-center">Formulaire :</h4>
+                <!-- Firstname input-->
+                <div class="form-group mb-1">
+                    <label class="mb-0" for="firstname">Son prénom</label>
+                    <input class="form-control m-0" formControlName="firstname" id="firstname" name="firstname" type="text" maxlength="30">
+                    <div *ngIf="firstname.invalid && isSubmitted" class="alert alert-danger">
+                        <div *ngIf="firstname.errors.required">Champs obligatoire</div>
+                        <div *ngIf="firstname.errors.minlength && !firstname.errors.required">Le prénom doit comporter au moins 4 caractères</div>
+                    </div>
+                </div>
+
+                <!-- Lastname input-->
+                <div class="form-group mb-1">
+                    <label class="mb-0" for="lastname">Son nom</label>
+                    <input class="form-control m-0" formControlName="lastname" id="lastname" name="lastname" type="text" maxlength="30">
+                    <div *ngIf="lastname.invalid && isSubmitted" class="alert alert-danger">
+                        <div *ngIf="lastname.errors.required">Champs obligatoire</div>
+                        <div *ngIf="lastname.errors.minlength && !lastname.errors.required">Le nom doit comporter au moins 4 caractères</div>
+                    </div>
+                </div>
+
+                <!-- Email input-->
+                <div class="form-group">
+                    <label class="mb-0" for="email">Email</label>
+                    <input class="form-control m-0" formControlName="email" id="email" name="email" type="text" maxlength="50">
+                    <div *ngIf="email.invalid && (email.dirty || email.touched) && isSubmitted" class="alert alert-danger">
+                        <div *ngIf="email.errors.required">Champs obligatoire</div>
+                        <div *ngIf="email.errors.invalidEmail && !email.errors.required">Email invalide</div>
+                    </div>
+                </div>
+
+                <!-- Button -->
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary" [disabled]="buttonDisabled">Envoyer l'invitation</button>
+                </div>
+            </div>
+        </form>
+        <div class="w-50 mt-0 mr-2 overflow-auto">
+            <h4 class="text-center">Liste des invitations :</h4>
+            <div class="list-group">
+                <div *ngFor="let invitation of (invitations$ | async)"
+                     class="list-group-item list-group-item-action list-group-item-info pl-1 pr-1">
+                    <div class="d-flex">
+                        <span class="mr-auto"><b>{{ invitation.firstname }} {{ invitation.lastname }}</b></span>
+                        <span class="text-break ml-1 mr-0">{{ invitation.email }}</span>
+                    </div>
+                    <small>URL : <a class="text-primary text-break" href="{{ executionUrl }}/{{ invitation.token }}" >{{ executionUrl }}/{{ invitation.token }}</a></small>
+                </div>
             </div>
         </div>
-
-        <!-- Lastname input-->
-        <div class="form-group">
-            <label for="lastname">Son nom</label>
-            <input class="form-control input-md" formControlName="lastname" id="lastname" name="lastname" type="lastname">
-            <div *ngIf="lastname.invalid && isSubmitted" class="alert alert-danger">
-                <div *ngIf="lastname.errors.required">Champs obligatoire</div>
-            </div>
-        </div>
-
-        <!-- Email input-->
-        <!-- Text input-->
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input class="form-control input-md" formControlName="email" id="email" name="email" type="text">
-            <div *ngIf="email.invalid && (email.dirty || email.touched) && isSubmitted" class="alert alert-danger">
-                <div *ngIf="email.errors.required">Champs obligatoire</div>
-                <div *ngIf="email.errors.invalidEmail && !email.errors.required">Email invalide</div>
-            </div>
-        </div>
-
-        <!-- Button -->
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary" [disabled]="buttonDisabled">Envoyer l'invitation</button>
-        </div>
-    </form>
+    </div>
 </div>

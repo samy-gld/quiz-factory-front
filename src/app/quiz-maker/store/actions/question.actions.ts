@@ -1,6 +1,6 @@
 import { createAction, props, union } from '@ngrx/store';
-import {Proposition, Question, Quiz} from '../../../model/IQuiz';
-import {Update} from '@ngrx/entity';
+import { Proposition, Question, Quiz } from '../../../model/IQuiz';
+import { Update } from '@ngrx/entity';
 
 export const LoadQuiz = createAction(
     '[Quiz] Load a Quiz',
@@ -14,7 +14,7 @@ export const LoadQuizSuccess = createAction(
 
 export const LoadQuizError = createAction(
     '[Quiz] Load a quiz Error',
-    props<{error: any}>()
+    props<{error: string}>()
 );
 
 export const CreateQuestion = createAction(
@@ -29,7 +29,7 @@ export const CreateQuestionSuccess = createAction(
 
 export const CreateQuestionError = createAction(
     '[Question] Create Question Error',
-    props<{error: any}>()
+    props<{error: string}>()
 );
 
 export const UpdateQuestion = createAction(
@@ -44,7 +44,7 @@ export const UpdateQuestionSuccess = createAction(
 
 export const UpdateQuestionError = createAction(
     '[Question] Update Question Error',
-    props<{error: any}>()
+    props<{error: string}>()
 );
 
 export const DeleteQuestion = createAction(
@@ -59,7 +59,7 @@ export const DeleteQuestionSuccess = createAction(
 
 export const DeleteQuestionError = createAction(
     '[Question] Delete Question Error',
-    props<{error: any}>()
+    props<{error: string}>()
 );
 
 export const CreateProposition = createAction(
@@ -74,7 +74,7 @@ export const CreatePropositionSuccess = createAction(
 
 export const CreatePropositionError = createAction(
     '[Question] Create a Proposition Error',
-    props<{error: any}>()
+    props<{error: string}>()
 );
 
 export const UpdateProposition = createAction(
@@ -89,7 +89,7 @@ export const UpdatePropositionSuccess = createAction(
 
 export const UpdatePropositionError = createAction(
     '[Question] Update a Proposition Error',
-    props<{error: any}>()
+    props<{error: string}>()
 );
 
 export const DeleteProposition = createAction(
@@ -104,7 +104,7 @@ export const DeletePropositionSuccess = createAction(
 
 export const DeletePropositionError = createAction(
     '[Question] Delete a Proposition Error',
-    props<{error: any}>()
+    props<{error: string}>()
 );
 
 export const IncrementPosition = createAction(

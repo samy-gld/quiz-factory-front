@@ -120,10 +120,12 @@ export class QuestionService {
                         this.onSavePropositions(propositions, question.position, question.id, qState.propositions);
                     }
                 }
+                /*
                 if (this.modifDone) {
                     this.toastr.success('Sauvegarde du Quiz !!');
                     this.modifDone = false;
                 }
+                */
             }
         );
     }
