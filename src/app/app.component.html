@@ -10,6 +10,14 @@
     <div class="collapse navbar-collapse" id="navbarToggler" [collapse]="isCollapsed">
         <!-- Links -->
         <ul class="navbar-nav mr-auto">
+            <li class="nav-item dropdown" routerLinkActive="active" dropdown>
+                <a id="dropInviteButton" aria-controls="dropInviteMenu" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" dropdownToggle>
+                    Espace Invité<b class='caret'></b>
+                </a>
+                <ul class="dropdown-menu" id="dropInviteMenu" *dropdownMenu role="menu" aria-labelledby="dropInviteButton">
+                    <li role="menuitem"><a routerLink="execute/invitation/" routerLinkActive="active" class='dropdown-item'>Participer à un quiz</a></li>
+                </ul>
+            </li>
             <li *ngIf="isAuthenticated | async" class="nav-item dropdown" routerLinkActive="active" dropdown>
                 <a id="dropAdminButton" aria-controls="dropAdminMenu" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" dropdownToggle>
                     Espace Création<b class='caret'></b>
@@ -19,13 +27,8 @@
                     <li role="menuitem"><a routerLink="quiz/edit" routerLinkActive="active" class='dropdown-item'>Créer un Quiz</a></li>
                 </ul>
             </li>
-            <li class="nav-item dropdown" routerLinkActive="active" dropdown>
-                <a id="dropInviteButton" aria-controls="dropInviteMenu" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" dropdownToggle>
-                    Espace Invité<b class='caret'></b>
-                </a>
-                <ul class="dropdown-menu" id="dropInviteMenu" *dropdownMenu role="menu" aria-labelledby="dropInviteButton">
-                    <li role="menuitem"><a routerLink="execute/invitation/" routerLinkActive="active" class='dropdown-item'>Participer à un quiz</a></li>
-                </ul>
+            <li *ngIf="isAuthenticated | async" class="nav-item" routerLinkActive="active" data-toggle="collapse" data-target=".navbar-collapse.show">
+                <a class="nav-link" routerLink="stats" (click)="isCollapsed = !isCollapsed">Statistiques</a>
             </li>
         </ul>
 
@@ -47,7 +50,7 @@
 <!--/.Navbar-->
 
 <div *ngIf="home" id="home" class="container-fluid m-0 p-0" style="width: 100%">
-    <section style="background-color: #e0ebe8; color: green">
+    <section>
         <h1>En famille</h1>
         <p>Amusez-vous à tester vos enfants... ou vos parents !!</p>
     </section>
@@ -55,7 +58,7 @@
         <h1>Entre amis</h1>
         <p>Défiez vos amis sur les sujets du moments !!</p>
     </section>
-    <section style="background-color: #e0ebe8; color: green">
+    <section>
         <h1>Au travail</h1>
         <p>Vérifiez les connaissances de vos salariés... actuels et futurs !!</p>
     </section>

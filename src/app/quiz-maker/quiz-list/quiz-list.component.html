@@ -5,7 +5,7 @@
 <h2 *ngIf="!(wait | async); else spinner">Liste des Quizzes</h2>
 <br>
 <div *ngIf="!(wait | async)">
-    <table class="table table-hover table-active table-dark">
+    <table class="table table-hover table-active">
         <thead class="text-white thead-dark" style="background-color: #2C6383">
           <tr>
             <th>Nom</th>
@@ -18,7 +18,7 @@
 
         <tbody>
           <tr *ngFor="let quiz of quizzes$ | async; let i = index"
-              [class.table-light]="i % 2 === 0" [class.table-secondary]="i % 2 === 1">
+              [class.table-active]="i % 2 === 0" [class.table-active]="i % 2 === 1">
             <td [routerLink]="['/quiz/generate/' + quiz.id]">{{ quiz.name }}</td>
             <td [routerLink]="['/quiz/generate/' + quiz.id]">{{ quiz.description }}</td>
             <td [routerLink]="['/quiz/generate/' + quiz.id]" style="text-align: center">

@@ -75,7 +75,8 @@ export const selectQuestionForm = createSelector(selectQuestionState, getQuestio
 export const getLoading = (state: QuestionState): boolean => state.loading;
 export const selectLoading = createSelector(selectQuestionState, getLoading);
 
-export const getQuestionByPosition = (position: number) => (entities): Question => entities[position] ? entities[position] : null;
+export const getQuestionByPosition = (position: number) =>
+    (entities): Question => entities[position] ? entities[position] : null;
 export const selectQuestionByPosition = (position) =>
     createSelector(selectQuestionEntities, getQuestionByPosition(position));
 

@@ -1,30 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import {catchError, map, switchMap, withLatestFrom} from 'rxjs/operators';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { Quiz } from '../../../model/IQuiz';
 import { mergeMap } from 'rxjs/internal/operators/mergeMap';
 import { Store, select } from '@ngrx/store';
 import {
-    ActionsUnion,
-    CreateQuiz,
-    CreateQuizError,
-    CreateQuizSuccess,
-    DeleteQuiz,
-    DeleteQuizError,
-    DeleteQuizSuccess,
-    FinalizeQuiz,
-    FinalizeQuizError,
-    FinalizeQuizSuccess,
-    InviteParticipant,
-    InviteParticipantError,
-    InviteParticipantSuccess, LoadInvitations, LoadInvitationsError, LoadInvitationsSuccess,
-    LoadQuizzes,
-    LoadQuizzesError,
-    LoadQuizzesSuccess,
-    UpdateQuiz,
-    UpdateQuizError,
-    UpdateQuizSuccess
+    ActionsUnion, CreateQuiz, CreateQuizError, CreateQuizSuccess, DeleteQuiz, DeleteQuizError,
+    DeleteQuizSuccess, FinalizeQuiz, FinalizeQuizError, FinalizeQuizSuccess, InviteParticipant,
+    InviteParticipantError, InviteParticipantSuccess, LoadInvitations, LoadInvitationsError, LoadInvitationsSuccess,
+    LoadQuizzes, LoadQuizzesError, LoadQuizzesSuccess, UpdateQuiz, UpdateQuizError, UpdateQuizSuccess
 } from '../actions/quiz.actions';
 import { of } from 'rxjs/internal/observable/of';
 import { environment } from '../../../../environments/environment';
@@ -123,11 +108,13 @@ export class QuizEffects {
 
     loadInvitations = createEffect(() => this.actions$.pipe(
         ofType(LoadInvitations),
-        switchMap(action =>
-            this.httpClient.get<Invitation[]>(this.ApiUrl + '/quiz/' + action.id + '/invitations').pipe(
-                map(invitations => LoadInvitationsSuccess({invitations})),
-                catchError(err => of(LoadInvitationsError({error: err.error.message})))
-            )
+        switchMap(action => {
+                const params = new HttpParams().set('origin', 'maker');
+                return this.httpClient.get<Invitation[]>(this.ApiUrl + '/quiz/' + action.id + '/invitations', {params}).pipe(
+                    map(invitations => LoadInvitationsSuccess({invitations})),
+                    catchError(err => of(LoadInvitationsError({error: err.error.message})))
+                );
+            }
         )
     ));
 

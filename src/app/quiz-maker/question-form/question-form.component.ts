@@ -295,32 +295,23 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
 
     onConfirmValidation(): void {
         this.bsModalRef.hide();
-        this.violations = this.questionService.validate();
-        if (this.violations.length === 0) {
-            this.quizStore.dispatch(FinalizeQuiz({id: this.currentQuizId}));
-            this.quizFinalized = true;
-            this.questionForm$.pipe(
-                take(1),
-                map(
-                    qf => {
-                        qf.controls.questionLabel.disable();
-                        qf.controls.questionType.disable();
-                        this.propositions.pipe(
-                            take(1),
-                            map(
-                                prop => {
-                                    prop.map(
-                                        p => p.disable()
-                                    );
-                                }
-                            )
-                        ).subscribe();
+        this.questionService.validate().pipe(
+            take(1)
+        ).subscribe(
+            violations => {
+                if (violations.length !== 0) {
+                    this.violations = violations;
+                    this.bsModalRef = this.modalService.show(this.violationTpl, {animated: true});
+                } else {
+                    if (this.regularSaveLauncher) {
+                        this.regularSaveLauncher.unsubscribe();
                     }
-                )
-            ).subscribe();
-        } else {
-            this.bsModalRef = this.modalService.show(this.violationTpl, {animated: true});
-        }
+                    this.quizStore.dispatch(FinalizeQuiz({id: this.currentQuizId}));
+                    this.quizFinalized = true;
+                    this.questionService.disable(this.questionForm$, this.propositions);
+                }
+            }
+        );
     }
 
     onInvite(): void {
