@@ -6,14 +6,11 @@ import {
     QuestionState, selectIdsFromState, selectQuestionByPosition, selectQuestionForm, selectQuestionsFromState
 } from '../store/reducers/question.reducer';
 import {
-    CreateProposition,
     CreateQuestion,
-    DeleteProposition,
-    UpdateProposition,
     UpdateQuestion } from '../store/actions/question.actions';
-import {map, skipWhile, take, withLatestFrom} from 'rxjs/operators';
-import {Observable} from 'rxjs';
-import {FormGroup} from '@angular/forms';
+import { map, take, withLatestFrom } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { FormGroup } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root'
@@ -76,80 +73,7 @@ export class QuestionService {
         ));
     }
 
-    onSaveQuestions(quizId: number) {
-        this.questionStore.pipe(
-            select(selectQuestionForm),
-            take(1)
-        ).pipe(
-            withLatestFrom(
-                this.questionStore.select(selectQuestionsFromState)
-            ),
-            take(1)
-        )
-            .subscribe(
-            ([questionForm, questionsState]) => {
-                const questionUpdateTab = [];
-                Object.assign(questionUpdateTab, questionForm as Array<Question>);
-                for (let question of questionUpdateTab) {
-                    const propositions = question.propositions;
-                    if (questionsState[question.position] === undefined) {
-                        question = {position: question.position, label: question.label, type: question.type};
-                        this.questionStore.dispatch(CreateQuestion({question, quizId}));
-                        this.questionStore.select(selectQuestionByPosition(question.position))
-                            .pipe(
-                                skipWhile(q => q === null),
-                                take(1),
-                            )
-                            .subscribe(
-                                (q) => {
-                                    this.onSavePropositions(propositions, question.position, q.id);
-                                }
-                            );
-
-                     } else {
-                        const qState = questionsState[question.position];
-                        question = {id: question.id, position: question.position, label: question.label, type: question.type};
-                        if (qState.label !== question.label || qState.type !== question.type) {
-                            this.questionStore.dispatch(UpdateQuestion({question}));
-                        }
-                        this.onSavePropositions(propositions, question.position, question.id, qState.propositions);
-                    }
-                }
-            }
-        );
-    }
-
-    onSavePropositions(propositions: Proposition[], questionPosition: number, questionId: number, propositionState: Proposition[] = null) {
-        for (let index = 0; index < propositions.length; index++) {
-            let proposition = propositions[index];
-            let matchingIndex = -1;
-            if (propositionState !== null) {
-                matchingIndex = propositionState.findIndex(p => p.id === proposition.id && p.position === proposition.position);
-            }
-            proposition = {label: proposition.label, wrightAnswer: proposition.wrightAnswer, position: proposition.position}; // delete id
-            if (matchingIndex >= 0) {
-                if (propositionState[matchingIndex].wrightAnswer !== proposition.wrightAnswer
-                    || propositionState[matchingIndex].label !== proposition.label) {
-                    const id = propositionState[matchingIndex].id;
-                    this.questionStore.dispatch(UpdateProposition({questionPosition, id, proposition, index: matchingIndex}));
-                }
-            } else {
-                this.questionStore.dispatch(CreateProposition({questionId, questionPosition, proposition, index}));
-                }
-        }
-
-        /* Delete unused propositions (for example: if switched from 'carre' to 'duo' */
-        if (propositionState !== null) {
-            const diffNbProposition = propositionState.length - propositions.length;
-            if (diffNbProposition > 0) {
-                for (let i = propositions.length; i < propositionState.length; i++) {
-                    this.questionStore.dispatch(DeleteProposition({questionPosition, propositionId: propositionState[i].id}));
-                }
-            }
-        }
-    }
-
-    disable(questionForm$: Observable<FormGroup>, propositions: Observable<any[]>): void {
+    disableForm(questionForm$: Observable<FormGroup>, propositions: Observable<any[]>): void {
         questionForm$.pipe(
             take(1),
             map(
@@ -169,5 +93,50 @@ export class QuestionService {
                 }
             )
         ).subscribe();
+    }
+
+    onSaveQuestions(quizId: number) {
+        this.questionStore.pipe(
+            select(selectQuestionForm),
+            take(1)
+        ).pipe(
+            withLatestFrom(
+                this.questionStore.select(selectQuestionsFromState)
+            ),
+            take(1)
+        )
+            .subscribe(
+                ([questionForm, questionsState]) => {
+                    const questionUpdateTab: Question[] = [];
+                    Object.assign(questionUpdateTab, questionForm as Array<Question>);
+                    for (const question of questionUpdateTab) {
+                        if (questionsState[question.position] === undefined) {
+                            this.questionStore.dispatch(CreateQuestion({question, quizId}));
+                        } else {
+                            const qState = questionsState[question.position];
+                            if (qState.label !== question.label || qState.type !== question.type ||
+                                !this.equalPropositionsTabs(qState.propositions, question.propositions)) {
+                                    this.questionStore.dispatch(UpdateQuestion({question}));
+                                }
+                            }
+                        }
+                }
+            );
+    }
+
+    private equalPropositions(p1: Proposition, p2: Proposition) {
+        return (p1.label === p2.label && p1.wrightAnswer === p2.wrightAnswer && p1.id === p2.id);
+    }
+
+    private equalPropositionsTabs(propsTab1: Proposition[], propsTab2: Proposition[]): boolean {
+        return propsTab1.length === propsTab2.length &&
+            propsTab1.every(p1 => {
+                const index = propsTab2.findIndex(p2 => p2.position === p1.position);
+                if (index >= 0) {
+                    return this.equalPropositions(p1, propsTab2[index]);
+                } else {
+                    return false;
+                }
+            });
     }
 }

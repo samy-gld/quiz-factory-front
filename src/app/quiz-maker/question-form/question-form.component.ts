@@ -65,13 +65,14 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
                 this.questionService.onSaveQuestions(this.currentQuizId);
                 this.questionStore.pipe(
                     select(selectErrorSaving),
-                    filter(error => !!error)
+                    filter(error => !!error),
+                    take(1),
                 ).subscribe(
                     () => {
                         this.toastr.warning('Attention, erreur lors de la sauvegarde');
                         this.questionStore.dispatch(ResetErrorSaving());
                     }
-                ).unsubscribe();
+                );
             }
         );
     }
@@ -115,10 +116,16 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
     }
 
     initFormQuestion(): void {
-        this.questionStore.select(selectCurrentQuestionPosition).subscribe(
+        this.questionStore.pipe(
+            select(selectCurrentQuestionPosition),
+            take(1)
+        ).subscribe(
             currentPosition => this.questionPosition = currentPosition
         );
-        this.questionStore.select(selectCurrentQuestion).subscribe(
+        this.questionStore.pipe(
+            select(selectCurrentQuestion),
+            take(1)
+        ).subscribe(
             q => this.currentQuestion = q
         );
 
@@ -227,9 +234,10 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
     get propositions() {
         return this.questionForm$.pipe(
             filter(formGroup => formGroup !== null),
+            take(1),
             map(
-                (propositionFormGroup: FormGroup) =>
-                    Array.of(propositionFormGroup.get('propositions') as FormArray)[0].controls
+                (questionFormGroup: FormGroup) =>
+                    Array.of(questionFormGroup.get('propositions') as FormArray)[0].controls
             ));
     }
 
@@ -308,7 +316,7 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
                     }
                     this.quizStore.dispatch(FinalizeQuiz({id: this.currentQuizId}));
                     this.quizFinalized = true;
-                    this.questionService.disable(this.questionForm$, this.propositions);
+                    this.questionService.disableForm(this.questionForm$, this.propositions);
                 }
             }
         );
@@ -321,7 +329,9 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
         };
         this.bsModalRef = this.modalService.show(InviteParticipantsComponent, initialConfig);
         this.bsModalRef.content.name = 'Invite Participants';
-        this.bsModalRef.content.closeInvite.subscribe(
+        this.bsModalRef.content.closeInvite.pipe(
+            take(1)
+        ).subscribe(
             () => this.bsModalRef.hide()
         );
     }

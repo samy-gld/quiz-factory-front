@@ -62,51 +62,6 @@ export const DeleteQuestionError = createAction(
     props<{error: string}>()
 );
 
-export const CreateProposition = createAction(
-    '[Question] Create a Proposition',
-    props<{questionId: number, questionPosition: number, proposition: Proposition, index: number}>()
-);
-
-export const CreatePropositionSuccess = createAction(
-    '[Question] Create a Proposition Success',
-    props<{questionPosition: number, proposition: Proposition, index: number}>()
-);
-
-export const CreatePropositionError = createAction(
-    '[Question] Create a Proposition Error',
-    props<{error: string}>()
-);
-
-export const UpdateProposition = createAction(
-    '[Question] Update a Proposition',
-    props<{questionPosition: number, id: number, proposition: Proposition, index: number}>()
-);
-
-export const UpdatePropositionSuccess = createAction(
-    '[Question] Update a Proposition Success',
-    props<{questionPosition: number, id: number, proposition: Proposition, index: number}>()
-);
-
-export const UpdatePropositionError = createAction(
-    '[Question] Update a Proposition Error',
-    props<{error: string}>()
-);
-
-export const DeleteProposition = createAction(
-    '[Question] Delete a Proposition',
-    props<{questionPosition: number, propositionId: number}>()
-);
-
-export const DeletePropositionSuccess = createAction(
-    '[Question] Delete a Proposition Success',
-    props<{questionPosition: number, propositionId: number}>()
-);
-
-export const DeletePropositionError = createAction(
-    '[Question] Delete a Proposition Error',
-    props<{error: string}>()
-);
-
 export const IncrementPosition = createAction(
     '[Question] Increment currentQuestionPosition'
 );
@@ -138,9 +93,6 @@ const actions = union({
   CreateQuestion, CreateQuestionSuccess, CreateQuestionError,
   UpdateQuestion, UpdateQuestionSuccess, UpdateQuestionError,
   DeleteQuestion, DeleteQuestionSuccess, DeleteQuestionError,
-  CreateProposition, CreatePropositionSuccess, CreatePropositionError,
-  UpdateProposition, UpdatePropositionSuccess, UpdatePropositionError,
-  DeleteProposition, DeletePropositionSuccess, DeletePropositionError,
   IncrementPosition, DecrementPosition, GoToPosition, UpdateQuestionForm,
   ResetErrorSaving, UnsetAll
 });

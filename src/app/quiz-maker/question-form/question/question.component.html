@@ -12,16 +12,16 @@
                 <div class="radio-form">
                     <div class="form-group">
                         <div class="btn-group btn-group-toggle radio-dimension" data-toggle="buttons" btnRadioGroup formControlName="questionType">
-                            <label btnRadio="duo" class="btn btn-primary" tabindex="0" [disabled]="quizFinalized">
-                                <input type="radio" value="duo" name="questionType" id="duo" (change)="updateQuestionType($event)" [disabled]="quizFinalized">
+                            <label btnRadio="duo" class="btn btn-primary" [disabled]="quizFinalized" (click)="updateQuestionType($event)">
+                                <input type="radio" value="duo" name="questionType" id="duo" [disabled]="quizFinalized">
                                 Duo
                             </label>
-                            <label btnRadio="carre" class="btn btn-primary" tabindex="0" [disabled]="quizFinalized">
-                                <input type="radio" value="carre" name="questionType" id="carre" (change)="updateQuestionType($event)" [disabled]="quizFinalized">
+                            <label btnRadio="carre" class="btn btn-primary" [disabled]="quizFinalized" (click)="updateQuestionType($event)">
+                                <input type="radio" value="carre" name="questionType" id="carre" [disabled]="quizFinalized">
                                 Carré
                             </label>
-                            <label btnRadio="qcm" class="btn btn-primary" tabindex="0" [disabled]="quizFinalized">
-                                <input type="radio" value="qcm" name="questionType" id="qcm" (change)="updateQuestionType($event)" [disabled]="quizFinalized">
+                            <label btnRadio="qcm" class="btn btn-primary" [disabled]="quizFinalized" (click)="updateQuestionType($event)">
+                                <input type="radio" value="qcm" name="questionType" id="qcm" [disabled]="quizFinalized">
                                 QCM
                             </label>
                         </div>
@@ -35,7 +35,7 @@
     <div class="row d-block"  formArrayName="propositions">
         <h4 class="text-center">Propositions</h4>
 
-        <div style="padding-top: 0.5em" *ngFor="let propositionGroup of (propositions | async); let i = index">
+        <div style="padding-top: 0.5em" *ngFor="let propositionGroup of (propositions$ | async); let i = index">
 
             <div class="prop-display" [formGroupName]="i">
                 <div class="custom-control custom-checkbox">

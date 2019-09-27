@@ -3,11 +3,9 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, filter, map, mergeMap, switchMap } from 'rxjs/operators';
-import { Proposition, Question, Quiz } from '../../../model/IQuiz';
+import { Question, Quiz } from '../../../model/IQuiz';
 import {
-    ActionsUnion, CreateProposition, CreatePropositionError, CreatePropositionSuccess, CreateQuestion,
-    CreateQuestionError, CreateQuestionSuccess, DeleteProposition, DeletePropositionError, DeletePropositionSuccess,
-    UpdateProposition, UpdatePropositionError, UpdatePropositionSuccess, UpdateQuestion, UpdateQuestionError,
+    ActionsUnion, CreateQuestion, CreateQuestionError, CreateQuestionSuccess, UpdateQuestion, UpdateQuestionError,
     UpdateQuestionSuccess, LoadQuiz, LoadQuizError, LoadQuizSuccess, DeleteQuestion, DeleteQuestionSuccess, DeleteQuestionError
 } from '../actions/question.actions';
 import { of } from 'rxjs';
@@ -80,48 +78,9 @@ export class QuestionEffects {
         )
     ));
 
-    createProposition$ = createEffect(() => this.actions$.pipe(
-        ofType(CreateProposition),
-        mergeMap(
-            ({questionId, questionPosition, proposition, index}) =>
-                this.httpClient.post<Proposition>(this.ApiUrl + '/question/' + questionId + '/proposition',
-                    JSON.stringify(proposition), this.httpOptions)
-                .pipe(
-                    map((result: Proposition) => CreatePropositionSuccess({questionPosition, proposition: result, index})
-                    ),
-                    catchError(err => of(CreatePropositionError({error: err.error.message})))
-                )
-        )
-    ));
-
-    updateProposition$ = createEffect(() => this.actions$.pipe(
-        ofType(UpdateProposition),
-        mergeMap(
-            ({questionPosition, id, proposition, index}) =>
-                this.httpClient.patch<Proposition>(this.ApiUrl + '/proposition/' + id,
-                    JSON.stringify(proposition), this.httpOptions)
-                .pipe(
-                    map((result: Proposition) => UpdatePropositionSuccess({questionPosition, id, proposition: result, index})),
-                    catchError(err => of(UpdatePropositionError({error: err.error.message})))
-                )
-        )
-    ));
-
-    deleteProposition$ = createEffect(() => this.actions$.pipe(
-        ofType(DeleteProposition),
-        mergeMap(({questionPosition, propositionId}) =>
-            this.httpClient.delete(this.ApiUrl + '/proposition/' + propositionId)
-                .pipe(
-                    map(() => DeletePropositionSuccess({questionPosition, propositionId})),
-                    catchError(err => of(DeletePropositionError({error: err.error.message})))
-                )
-        )
-    ));
-
     // Api Call errors management or expired Token
     ApiCallError = createEffect(() => this.actions$.pipe(
-        ofType(LoadQuizError, CreateQuestionError, UpdateQuestionError, CreatePropositionError,
-            UpdatePropositionError, DeletePropositionError),
+        ofType(LoadQuizError, CreateQuestionError, UpdateQuestionError),
         map(errorMessage => this.errorManager.manageError(errorMessage))
         ),
         { dispatch: false}

@@ -1,8 +1,7 @@
 import {Proposition, Question, Quiz} from '../../../model/IQuiz';
 import {
     LoadQuizSuccess, GoToPosition, LoadQuiz, LoadQuizError, CreateQuestionSuccess, CreateQuestionError,
-    UpdateQuestionSuccess, UpdateQuestionError, CreatePropositionError, CreatePropositionSuccess,
-    UpdatePropositionSuccess, UpdatePropositionError, DeletePropositionSuccess, DeletePropositionError,
+    UpdateQuestionSuccess, UpdateQuestionError,
     UpdateQuestionForm, UnsetAll, IncrementPosition, DecrementPosition, ResetErrorSaving,
     DeleteQuestionSuccess, CreateQuestion, UpdateQuestion, DeleteQuestion
 } from '../actions/question.actions';
@@ -42,14 +41,6 @@ export const initialQuestionState: QuestionState = questionAdapter.getInitialSta
 /********** Selectors **********/
 export const selectQuestionState = createFeatureSelector<QuestionState>('questions');
 
-export const selectAllQuestions = createSelector(
-    selectQuestionState,
-    (state: QuestionState) => {
-        const allQuestions = Object.values(state.entities);
-        allQuestions.sort(sortQuestionByPosition);
-    }
-);
-
 export const {
     selectIds: selectQuestionIds,
     selectEntities: selectQuestionEntities,
@@ -59,9 +50,6 @@ export const {
 
 export const getCurrentQuiz = (state: QuestionState): Quiz => state.currentQuiz;
 export const selectCurrentQuiz = createSelector(selectQuestionState, getCurrentQuiz);
-
-export const getCurrentQuizStatus = (state: QuestionState): boolean => state.currentQuiz.status === 'finalized';
-export const selectCurrentQuizStatus = createSelector(selectQuestionState, getCurrentQuizStatus);
 
 export const getCurrentQuestion = (state: QuestionState): Question => state.currentQuestion;
 export const selectCurrentQuestion = createSelector(selectQuestionState, getCurrentQuestion);
@@ -142,9 +130,23 @@ export const questionReducer = createReducer(
             const qForm: Question[] = [...state.questionForm];
             const index = qForm.findIndex((q => q.position === question.position));
             if (index >= 0) {
-                const createdQuestion = Object.assign({}, qForm[index]);
-                createdQuestion.id = question.id;
-                qForm[index] = createdQuestion;
+                const questionInForm = Object.assign({}, qForm[index]);
+                // affect id of the new question in questionForm
+                questionInForm.id = question.id;
+
+                // affect ids of new propositions in questionForm
+                const propositionsInForm: Proposition[] = [...questionInForm.propositions];
+                [...question.propositions].map(newProp => {
+                    const i = propositionsInForm.findIndex(formProp => formProp.position === newProp.position);
+                    if (i >= 0) {
+                        const proposition: Proposition = Object.assign({}, propositionsInForm[i]);
+                        proposition.id = newProp.id;
+                        propositionsInForm[i] = proposition;
+                    }
+                });
+
+                questionInForm.propositions = propositionsInForm;
+                qForm[index] = questionInForm;
             }
             return questionAdapter.addOne(question, {
                 ...state,
@@ -159,9 +161,23 @@ export const questionReducer = createReducer(
             const qForm: Question[] = [...state.questionForm];
             const index = qForm.findIndex((q => q.position === question.id));
             if (index >= 0) {
-                const modifiedQuestion: Question = Object.assign({}, qForm[index]);
-                modifiedQuestion.id = question.changes.id;
-                qForm[index] = modifiedQuestion;
+                const questionInForm: Question = Object.assign({}, qForm[index]);
+                // affect id of the new question in questionForm
+                questionInForm.id = question.changes.id;
+
+                // affect ids of new propositions in questionForm
+                const propositionsInForm: Proposition[] = [...questionInForm.propositions];
+                [...question.changes.propositions].map(changeProp => {
+                    const i = propositionsInForm.findIndex(formProp => formProp.position === changeProp.position);
+                    if (i >= 0) {
+                        const proposition: Proposition = Object.assign({}, propositionsInForm[i]);
+                        proposition.id = changeProp.id;
+                        propositionsInForm[i] = proposition;
+                    }
+                });
+
+                questionInForm.propositions = propositionsInForm;
+                qForm[index] = questionInForm;
             }
             return questionAdapter.updateOne(question, {
                 ...state,
@@ -182,82 +198,21 @@ export const questionReducer = createReducer(
                     curQuestion = qForm[indexCurQuestion];
                 }
             }
-            if (questionPosition !== null) {
-                return questionAdapter.removeOne(questionPosition, {
-                    ...state,
-                    questionForm: qForm,
-                    currentQuestion: curQuestion,
-                    savePendingQuestions: state.savePendingQuestions.slice(0).filter(p => p.position !== questionPosition)
-                });
-            } else {
-                return {
-                    ...state,
-                    questionForm: qForm,
-                    currentQuestion: curQuestion,
-                    savePendingQuestions: state.savePendingQuestions.slice(0).filter(p => p.position !== questionPosition)
-                };
-            }
-        }
-    ),
-    on(CreatePropositionSuccess,
-        (state, {questionPosition, proposition, index}) => {
-            const curQuestion: Question = Object.assign({}, state.currentQuestion);
-            const qForm: Question[] = [...state.questionForm];
-            const indexQuestion: number = qForm.findIndex((q => q.position === questionPosition));
-            if (indexQuestion >= 0) {
-                // avoiding state & action mutability
-                const modifiedQuestion: Question = Object.assign({}, qForm[indexQuestion]);
-                const props: Proposition[] = [...modifiedQuestion.propositions];
-                const createdProposition: Proposition = Object.assign({}, props[index]);
-                createdProposition.id = proposition.id;
-                props[index] = createdProposition;
-                modifiedQuestion.propositions = [...props];
-                qForm[indexQuestion] = modifiedQuestion;
-            }
-            const propositions: Proposition[] =
-                state.entities[questionPosition].propositions !== null && state.entities[questionPosition].propositions !== undefined ?
-                    [...state.entities[questionPosition].propositions] : [];
-            propositions.push(proposition);
-            if (questionPosition === state.currentQuestionPosition) {
-                curQuestion.propositions = propositions.sort((a, b) => a.position - b.position);
-            }
-            return questionAdapter.updateOne({id: questionPosition, changes: {propositions}}, {
+
+            const returnState: QuestionState = {
                 ...state,
+                questionForm: qForm,
                 currentQuestion: curQuestion,
-                questionForm: qForm
-            });
-        }
-    ),
-    on(UpdatePropositionSuccess,
-        (state, {questionPosition, id, proposition, index}) => {
-            const curQuestion = Object.assign({}, state.currentQuestion);
-            const propositions: Proposition[] = [...state.entities[questionPosition].propositions];
-            propositions[index] = proposition;
-            if (questionPosition === state.currentQuestionPosition) {
-                curQuestion.propositions = propositions;
+                savePendingQuestions: state.savePendingQuestions.slice(0).filter(p => p.position !== questionPosition)
+            };
+            if (questionPosition !== null) {
+                return questionAdapter.removeOne(questionPosition, returnState);
+            } else {
+                return returnState;
             }
-            return questionAdapter.updateOne({id: questionPosition, changes: {propositions}}, {
-                ...state,
-                currentQuestion: curQuestion
-            });
         }
     ),
-    on(DeletePropositionSuccess,
-        (state, {questionPosition, propositionId}) => {
-            const curQuestion = Object.assign({}, state.currentQuestion);
-            const propositions: Proposition[] = [...state.entities[questionPosition].propositions];
-            propositions.splice(propositions.findIndex((prop) => prop.id === propositionId), 1);
-            if (questionPosition === state.currentQuestionPosition) {
-                curQuestion.propositions = propositions;
-            }
-            return questionAdapter.updateOne({id: questionPosition, changes: {propositions}}, {
-                ...state,
-                currentQuestion: curQuestion
-            });
-        }
-    ),
-    on(LoadQuizError, CreateQuestionError, UpdateQuestionError, DeletePropositionError,
-        CreatePropositionError, UpdatePropositionError, DeletePropositionError,
+    on(LoadQuizError, CreateQuestionError, UpdateQuestionError,
         state => ({
             ...state,
             errorSaving: true
@@ -296,20 +251,22 @@ export const questionReducer = createReducer(
         (state, {question}) => {
             const modifiedQuestion: Question = Object.assign({}, question);
             const qForm: Question[] = [...state.questionForm];
-            const index = qForm.findIndex((q => q.position === question.position));
+            const index = qForm.findIndex(q => q.position === question.position);
             if (index >= 0) {
                 if (!modifiedQuestion.id) {
                     modifiedQuestion.id = qForm[index].id;
                 }
 
                 // keeping proposition ids from original questionForm
-                modifiedQuestion.propositions.slice().map((prop, i) => {
+                const modifiedPropositions: Proposition[] = [];
+                [...modifiedQuestion.propositions].map((prop, i) => {
                     const proposition: Proposition = Object.assign({}, prop);
                     if (qForm[index].propositions[i] !== undefined) {
                         proposition.id = qForm[index].propositions[i].id;
                     }
-                    return proposition;
+                    modifiedPropositions.push(proposition);
                 });
+                modifiedQuestion.propositions = modifiedPropositions;
                 qForm[index] = modifiedQuestion;
             } else {
                 qForm.push(modifiedQuestion);

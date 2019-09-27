@@ -50,6 +50,7 @@
 <app-question
     *ngIf="!(loadingQuestion | async) && (questionForm$ | async)"
     [questionForm$]="questionForm$"
+    [propositions$]="propositions"
     [currentQuestion]="currentQuestion"
     [quizFinalized]="quizFinalized"
     (deleteQuestionEvent)="onDeleteQuestion()"
