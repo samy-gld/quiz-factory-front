@@ -3,7 +3,7 @@ import {
     LoadQuizSuccess, GoToPosition, LoadQuiz, LoadQuizError, CreateQuestionSuccess, CreateQuestionError,
     UpdateQuestionSuccess, UpdateQuestionError,
     UpdateQuestionForm, UnsetAll, IncrementPosition, DecrementPosition, ResetErrorSaving,
-    DeleteQuestionSuccess, CreateQuestion, UpdateQuestion, DeleteQuestion
+    DeleteQuestionSuccess, CreateQuestion, UpdateQuestion, DeleteQuestion, ClearQuestionState
 } from '../actions/question.actions';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 import { createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
@@ -15,6 +15,7 @@ export interface QuestionState  extends EntityState<Question> {
     currentQuestionPosition: number | null;
     questionForm: Question[];
     savePendingQuestions: any[];
+    modifiedQuestionsPos: number[];
     loading: boolean;
     errorSaving: boolean;
 }
@@ -34,6 +35,7 @@ export const initialQuestionState: QuestionState = questionAdapter.getInitialSta
     currentQuestionPosition: null,
     questionForm: [],
     savePendingQuestions: [],
+    modifiedQuestionsPos: [],
     loading: false,
     errorSaving: false
 });
@@ -47,6 +49,8 @@ export const {
     selectAll: selectQuestions,
     selectTotal: countQuestions
 } = questionAdapter.getSelectors(selectQuestionState);
+
+export const isQuestionStateLoaded = createSelector(selectQuestionState, questions => !!questions);
 
 export const getCurrentQuiz = (state: QuestionState): Quiz => state.currentQuiz;
 export const selectCurrentQuiz = createSelector(selectQuestionState, getCurrentQuiz);
@@ -73,6 +77,9 @@ export const selectErrorSaving = createSelector(selectQuestionState, getErrorSav
 
 export const getSavePendingQuestions = (state: QuestionState): any[] => state.savePendingQuestions;
 export const selectSavePendingQuestions = createSelector(selectQuestionState, getSavePendingQuestions);
+
+export const getModifiedQuestionsPos = (state: QuestionState): number[] => state.modifiedQuestionsPos;
+export const selectModifiedQuestionsPos = createSelector(selectQuestionState, getModifiedQuestionsPos);
 
 export const selectQuestionsFromState = selectQuestionEntities;
 export const selectIdsFromState = selectQuestionIds;
@@ -116,12 +123,14 @@ export const questionReducer = createReducer(
     on(UpdateQuestion, CreateQuestion,
         (state, action) => ({
             ...state,
+            modifiedQuestionsPos: state.modifiedQuestionsPos.slice(0).filter(p => p !== action.question.position),
             savePendingQuestions: [...state.savePendingQuestions, {action: 'saving', position: action.question.position}]
         })
     ),
     on(DeleteQuestion,
         (state, action) => ({
             ...state,
+            modifiedQuestionsPos: state.modifiedQuestionsPos.slice(0).filter(p => p !== action.questionPosition),
             savePendingQuestions: [...state.savePendingQuestions, {action: 'deleting', position: action.questionPosition}]
         })
     ),
@@ -189,20 +198,15 @@ export const questionReducer = createReducer(
     on(DeleteQuestionSuccess,
         (state, {questionPosition}) => {
             const qForm: Question[] = [...state.questionForm];
-            let curQuestion: Question|null = null;
-            const index = qForm.findIndex((q => q.position === state.currentQuestionPosition));
+            const index = qForm.findIndex(q => q.position === questionPosition);
             if (index >= 0) {
                 qForm.splice(index, 1);
-                const indexCurQuestion = qForm.findIndex(q => q.position === state.currentQuestionPosition);
-                if (indexCurQuestion >= 0) {
-                    curQuestion = qForm[indexCurQuestion];
-                }
             }
 
             const returnState: QuestionState = {
                 ...state,
                 questionForm: qForm,
-                currentQuestion: curQuestion,
+                currentQuestion: state.currentQuestionPosition === questionPosition ? null : state.currentQuestion,
                 savePendingQuestions: state.savePendingQuestions.slice(0).filter(p => p.position !== questionPosition)
             };
             if (questionPosition !== null) {
@@ -241,11 +245,14 @@ export const questionReducer = createReducer(
         }
     ),
     on(GoToPosition,
-        (state, {position}) => ({
-            ...state,
-            currentQuestion: state.questionForm[position - 1] !== undefined ? state.questionForm[position - 1] : null,
-            currentQuestionPosition: position
-        })
+        (state, {position}) => {
+            const index = [...state.questionForm].findIndex(q => q.position === position);
+            return {
+                ...state,
+                currentQuestion: index >= 0 ? state.questionForm[index] : null,
+                currentQuestionPosition: position
+            };
+        }
     ),
     on(UpdateQuestionForm,
         (state, {question}) => {
@@ -273,7 +280,9 @@ export const questionReducer = createReducer(
             }
             return {
                 ...state,
-                questionForm: qForm
+                questionForm: qForm,
+                modifiedQuestionsPos: [...state.modifiedQuestionsPos].findIndex(p => p === question.position) === -1 ?
+                    [...state.modifiedQuestionsPos, question.position] : [...state.modifiedQuestionsPos]
             };
         }
     ),
@@ -282,14 +291,7 @@ export const questionReducer = createReducer(
             ...state,
             errorSaving: false
     })),
-    on(UnsetAll,
-        state => questionAdapter.removeAll({
-            ...state,
-            currentQuiz: null,
-            currentQuestion: null,
-            currentQuestionPosition: null,
-            questionForm: [],
-            loading: false
-        })
+    on(UnsetAll, ClearQuestionState,
+        _ => questionAdapter.removeAll(initialQuestionState)
     )
 );

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import { select, Store } from '@ngrx/store';
-import {ExecutionState, selectAnswers, selectPostAnswersPending} from '../store/reducers/execution.reducer';
-import {first, map, skipWhile, tap, withLatestFrom} from 'rxjs/operators';
+import { ExecutionState, selectAnswers, selectPostAnswersPending } from '../store/reducers/execution.reducer';
+import { map, skipWhile, take } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -11,26 +11,34 @@ import { Observable } from 'rxjs';
 })
 export class DisplayResultComponent implements OnInit {
 
+    @Output() closeModal: EventEmitter<boolean> = new EventEmitter<boolean>();
     results$: Observable<any>;
 
     constructor(private executionStore: Store<ExecutionState>) { }
 
     ngOnInit() {
-        this.results$ = this.executionStore.select(selectPostAnswersPending).pipe(
+        this.executionStore.pipe(
+            select(selectPostAnswersPending),
             skipWhile(pending => pending !== 0),
-            withLatestFrom(
-                this.executionStore.select(selectAnswers).pipe(first())
-            ),
-            map(([_, answers]) => {
-                    const count = answers.length;
-                    const result = answers.filter(answer => !!answer.success).length;
-                    return {
-                        count,
-                        result,
-                        average: result / count
-                    };
-                }
-            ),
+            take(1)
+        ).subscribe(
+            _ => this.results$ = this.executionStore.pipe(
+                            select(selectAnswers),
+                            map(answers => {
+                                    const count = answers.length;
+                                    const result = answers.filter(answer => !!answer.success).length;
+                                    return {
+                                        count,
+                                        result,
+                                        average: result / count
+                                    };
+                                }
+                            )
+                        )
         );
+    }
+
+    onClose() {
+        this.closeModal.emit(true);
     }
 }

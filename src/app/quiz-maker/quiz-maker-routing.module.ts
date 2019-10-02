@@ -8,12 +8,12 @@ import { InviteParticipantsComponent } from './invite-partcipants/invite-partici
 import { AuthenticationGuard } from '../authentication/services/authentication.guard';
 
 const routes: Routes = [
-    { path: 'edit',         canActivate: [AuthenticationGuard], component: QuizFormComponent },
-    { path: 'edit/:id',     canActivate: [AuthenticationGuard], component: QuizFormComponent },
-    { path: 'list',         canActivate: [AuthenticationGuard], component: QuizListComponent },
-    { path: 'preview/:id',  canActivate: [AuthenticationGuard], component: PreviewComponent },
-    { path: 'generate/:id', canActivate: [AuthenticationGuard], component: QuestionFormComponent },
-    { path: 'invite',       canActivate: [AuthenticationGuard], component: InviteParticipantsComponent }
+    { path: 'quiz/edit',         canActivate: [AuthenticationGuard], component: QuizFormComponent },
+    { path: 'quiz/edit/:id',     canActivate: [AuthenticationGuard], component: QuizFormComponent },
+    { path: 'quiz/list',         canActivate: [AuthenticationGuard], component: QuizListComponent },
+    { path: 'quiz/preview/:id',  canActivate: [AuthenticationGuard], component: PreviewComponent },
+    { path: 'quiz/generate/:id', canActivate: [AuthenticationGuard], component: QuestionFormComponent },
+    { path: 'quiz/invite',       canActivate: [AuthenticationGuard], component: InviteParticipantsComponent }
 ];
 
 @NgModule({

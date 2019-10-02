@@ -7,26 +7,34 @@
                 <label for="questionLabel"><h4>Intitulé de la question</h4></label>
                 <textarea class="form-control" style="resize: none;" id="questionLabel"
                           formControlName="questionLabel" maxlength="300" #labelLength></textarea>
-                <span class="text-right form-text" id="spanCar" style="color: #2B3E50;font-size: 0.7rem"><code>{{ labelLength.value.length }}</code> / 300 &nbsp;</span>
+                <span class="text-right form-text" id="spanCar" style="color: #2B3E50;font-size: 0.7rem">{{ labelLength.value.length }} / 300 &nbsp;</span>
 
                 <div class="radio-form">
                     <div class="form-group">
                         <div class="btn-group btn-group-toggle radio-dimension" data-toggle="buttons" btnRadioGroup formControlName="questionType">
-                            <label btnRadio="duo" class="btn btn-primary" [disabled]="quizFinalized" (click)="updateQuestionType($event)">
+                            <label btnRadio="duo" class="btn btn-primary" [disabled]="quizFinalized" (click)="updateQuestionType($event)"
+                                   tooltip="2 propositions, une seule bonne réponse" placement="bottom">
                                 <input type="radio" value="duo" name="questionType" id="duo" [disabled]="quizFinalized">
                                 Duo
                             </label>
-                            <label btnRadio="carre" class="btn btn-primary" [disabled]="quizFinalized" (click)="updateQuestionType($event)">
+                            <label btnRadio="carre" class="btn btn-primary" [disabled]="quizFinalized" (click)="updateQuestionType($event)"
+                                   tooltip="4 propositions, une seule bonne réponse" placement="right">
                                 <input type="radio" value="carre" name="questionType" id="carre" [disabled]="quizFinalized">
                                 Carré
                             </label>
-                            <label btnRadio="qcm" class="btn btn-primary" [disabled]="quizFinalized" (click)="updateQuestionType($event)">
+                            <label btnRadio="qcm" class="btn btn-primary" [disabled]="quizFinalized" (click)="updateQuestionType($event)"
+                                   tooltip="6 propositions, au moins une bonne réponse" placement="bottom">
                                 <input type="radio" value="qcm" name="questionType" id="qcm" [disabled]="quizFinalized">
                                 QCM
                             </label>
                         </div>
                     </div>
-                    <button class="btn btn-danger btn-dimension" (click)="deleteQuestion()" [disabled]="!currentQuestion || quizFinalized">Supprimer</button>
+                    <button class="btn btn-danger btn-dimension" (click)="deleteQuestion()"
+                            [disabled]="(!(currentQuestion$ | async)) || (!(currentQuestion$ | async).id) || quizFinalized"
+                            tooltip="Supprimer cette question de votre Quiz, il restera possible de saisir une question sur cette position"
+                            placement="auto">
+                        Supprimer
+                    </button>
                 </div>
             </div>
         </div>
@@ -40,11 +48,10 @@
             <div class="prop-display" [formGroupName]="i">
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" (change)="uncheckOthers($event)"
-                           [attr.id]="'check_' + i" name="wrightAnswer" formControlName="wrightAnswer"
-                           maxlength="150">
+                           [attr.id]="'check_' + i" name="wrightAnswer" formControlName="wrightAnswer">
                     <label class="custom-control-label" [attr.for]="'check_' + i"></label>
                 </div>
-                <input class="form-control" type="text" formControlName="label" />
+                <input class="form-control" type="text" formControlName="label" maxlength="120" />
                 <input type="hidden" formControlName="id" />
                 <input type="hidden" formControlName="position" />
             </div>

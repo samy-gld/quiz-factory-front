@@ -4,24 +4,24 @@ import { HttpClientModule } from '@angular/common/http';
 import { AuthenticationGuard } from './authentication/services/authentication.guard';
 
 export const AppRoutes: Routes = [
-    {
+    /*{
         path: 'quiz',
-        canActivate: [AuthenticationGuard],
+        canLoad: [AuthenticationGuard],
         loadChildren: () => import('./quiz-maker/quiz-maker.module').then(
             m => m.QuizMakerModule
         )
     },
+    {
+        path: 'stats',
+        canLoad: [AuthenticationGuard],
+        loadChildren: () => import('./statistics/statistics.module').then(
+            m => m.StatisticsModule) },*/
     {
         path: 'execute',
         loadChildren: () => import('./quiz-execution/quiz-execution.module').then(
             m => m.QuizExecutionModule
         )
     },
-    {
-        path: 'stats',
-        canActivate: [AuthenticationGuard],
-        loadChildren: () => import('./statistics/statistics.module').then(
-            m => m.StatisticsModule) },
     {
         path: '',
         redirectTo: '/',

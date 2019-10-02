@@ -1,9 +1,9 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import {Observable, of, Subscription, timer} from 'rxjs';
+import { Observable, of, Subscription, timer } from 'rxjs';
 import { Question } from '../../model/IQuiz';
 import { select, Store } from '@ngrx/store';
-import { ExecutionState, selectCurrentExecution, selectQuestionsTab} from '../store/reducers/execution.reducer';
-import {delay, first, map, share, shareReplay, skipWhile, take, takeWhile, tap} from 'rxjs/operators';
+import { ExecutionState, selectCurrentExecution, selectQuestionsTab } from '../store/reducers/execution.reducer';
+import { first, skipWhile, take, takeWhile } from 'rxjs/operators';
 import { PostAnswer, PostExecution } from '../store/actions/execution.actions';
 import { Execution } from '../../model/IExecution';
 import { Answer } from '../../model/IAnswer';
@@ -176,5 +176,9 @@ export class QuizLauncherComponent implements OnInit {
         this.responseStyle[i] = {
             'background-color': this.selected[i] ? '#ee7382' : '#bee5eb'
         };
+    }
+
+    onCloseModal() {
+        this.closeLauncher.emit(true);
     }
 }

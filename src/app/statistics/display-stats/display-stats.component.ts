@@ -20,7 +20,7 @@ export class DisplayStatsComponent implements OnInit, OnChanges {
     questions$: Observable<Question[]>;
     invitations$: Observable<Invitation[]>;
     propositions: any[];
-    answersTab: any[];
+    answersTab: any[][];
     selected: boolean;
     loading: boolean;
 
@@ -43,17 +43,21 @@ export class DisplayStatsComponent implements OnInit, OnChanges {
                 skipWhile(i => i.length === 0),
                 tap(
                     invitations => {
-                        this.answersTab = [[], []];
-                        invitations.forEach((invitation, i) => {
-                            invitation.execution.answers.forEach(
-                                answer => {
-                                    let displayProps = `<ul class="list-group">`;
-                                    [...answer.propositions].forEach(value => {
-                                        displayProps += `<li class="list-group-item">` + (value as unknown as Proposition).label + `</li>`;
-                                    });
-                                    displayProps += `</ul>`;
-                                    this.answersTab[i].push(displayProps);
-                                }
+                        this.answersTab = [];
+                        invitations.forEach(
+                            (invitation, i) => {
+                                this.answersTab[i] = [];
+                                invitation.execution.answers.forEach(
+                                    answer => {
+                                        let displayProps = `<ul class="list-group">`;
+                                        [...answer.propositions].forEach(value => {
+                                            displayProps += `<li class="list-group-item">` +
+                                                                (value as unknown as Proposition).label +
+                                                            `</li>`;
+                                        });
+                                        displayProps += `</ul>`;
+                                        this.answersTab[i].push(displayProps);
+                                    }
                             );
                         });
                     }

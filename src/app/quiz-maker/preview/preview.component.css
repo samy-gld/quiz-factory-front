@@ -38,6 +38,10 @@
     border-radius: 3px;
 }
 
+.proposition-long {
+    padding-top: 0;
+}
+
 /* Safari 4.0 - 8.0 */
 @-webkit-keyframes blinking {
     0%{ background-color: #00ff00; opacity: 1}

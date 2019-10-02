@@ -67,12 +67,16 @@ export const ResetError = createAction(
     '[Execution] Reset error'
 );
 
+export const ClearExecutionState = createAction(
+    '[Logout] Clear ExecutionState'
+);
+
 const actions = union({
     LoadInvitation, LoadInvitationSuccess, LoadInvitationError,
     LoadExecution, LoadExecutionSuccess, LoadExecutionError,
     PostExecution, PostExecutionSuccess, PostExecutionError,
     PostAnswer, PostAnswerSuccess, PostAnswerError,
-    ResetError
+    ResetError, ClearExecutionState
 });
 
 export type ActionsUnion = typeof actions;

@@ -88,13 +88,17 @@ export const UnsetAll = createAction(
     '[Question] Unset all variables of the store'
 );
 
+export const ClearQuestionState = createAction(
+    '[Logout] Clear QuestionState'
+);
+
 const actions = union({
   LoadQuiz, LoadQuizSuccess, LoadQuizError,
   CreateQuestion, CreateQuestionSuccess, CreateQuestionError,
   UpdateQuestion, UpdateQuestionSuccess, UpdateQuestionError,
   DeleteQuestion, DeleteQuestionSuccess, DeleteQuestionError,
   IncrementPosition, DecrementPosition, GoToPosition, UpdateQuestionForm,
-  ResetErrorSaving, UnsetAll
+  ResetErrorSaving, UnsetAll, ClearQuestionState
 });
 
 export type ActionsUnion = typeof actions;

@@ -50,7 +50,7 @@
             <button type="submit" class="btn btn-primary" [disabled]="buttonDisabled">S'inscrire</button>
             <p>
                 <span>&nbsp;Vous êtes déjà inscrit ?&nbsp;</span>
-                <a routerLink="../login">Connectez-vous!</a>
+                <a routerLink="../login" class="btn-link text-primary">Connectez-vous!</a>
             </p>
         </div>
 
@@ -61,7 +61,7 @@
 <ng-template [ngIf]="registered" #registrationTemplate>
     <div class="row justify-content-center d-block">
         <h2>Confirmation d'inscription</h2>
-        <p>Bienvenue {{ username.value }} !!</p>
+        <p>Bienvenue {{ username.value | titlecase }} !!</p>
         <p>Un mail vous a été envoyé pour confimer définitivement votre inscription.</p>
         <p>Veuillez cliquer sur le lien indiqué dans ce mail. Vous pourrez ensuite commencer à créer vos Quizzes</p>
     </div>

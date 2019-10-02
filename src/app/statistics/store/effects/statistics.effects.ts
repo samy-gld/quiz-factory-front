@@ -24,12 +24,8 @@ import { Invitation } from '../../../model/IInvitation';
 
 @Injectable()
 export class StatisticsEffects {
+
     ApiUrl = environment.UrlApi;
-    httpOptions = {
-        headers: new HttpHeaders({
-            'Content-Type': 'application/json'
-        })
-    };
 
     constructor(private actions$: Actions<ActionsUnion>,
                 private httpClient: HttpClient,

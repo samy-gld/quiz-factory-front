@@ -1,5 +1,5 @@
 import { createAction, props, union } from '@ngrx/store';
-import {Question, Quiz} from '../../../model/IQuiz';
+import { Question, Quiz } from '../../../model/IQuiz';
 import { Invitation } from '../../../model/IInvitation';
 
 export const LoadQuizzes = createAction(
@@ -50,10 +50,14 @@ export const UnsetAllStats = createAction(
     '[Stats] Unset All Stats Properties'
 );
 
+export const ClearStatisticsState = createAction(
+    '[Logout] Clear State'
+);
+
 const actions = union({
     LoadQuizzes, LoadQuizzesSuccess, LoadQuizzesError,
     LoadQuestions, LoadQuestionsSuccess, LoadQuestionsError,
-    UnsetAllStats
+    UnsetAllStats, ClearStatisticsState
 });
 
 export type ActionsUnion = typeof actions;

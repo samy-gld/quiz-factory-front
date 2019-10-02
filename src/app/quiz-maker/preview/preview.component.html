@@ -24,9 +24,8 @@
                 </div>
                 <ul class="row mt-2 ml-2 mb-3 d-flex">
                     <li *ngFor="let proposition of (currentQuestion$ | async).propositions; let i = index;"
-                        class="list-group-item list-group-item-action list-group-item-info m-1
-                        proposition proposition-qcm"
-                        (click)="!answered && onSelect(i)" [ngStyle]="responseStyle[i]">
+                        class="list-group-item list-group-item-action list-group-item-info m-1 proposition proposition-qcm"
+                        (click)="!answered && onSelect(i)" [ngStyle]="responseStyle[i]" [ngClass]="{'proposition-long': proposition.label.length > 50}">
                         {{ proposition.label }}
                     </li>
                 </ul>

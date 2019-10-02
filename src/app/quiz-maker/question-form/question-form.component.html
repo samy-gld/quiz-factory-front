@@ -4,11 +4,15 @@
     <div class="jumbotron d-flex w-100 justify-content-between p-4 m-2" id="head">
         <h2>{{ currentQuiz.name }}</h2>
         <div>
-            <button id="previewButton" class="btn btn-primary btn-dimension" (click)="onPreview()">Prévisualiser</button>
+            <button id="previewButton" class="btn btn-primary btn-dimension"
+                    tooltip="Pour tester votre Quiz sans enregistrer les résultats" placement="bottom"
+                    (click)="onPreview()">Prévisualiser</button>
             <span id="separation">&nbsp;</span>
             <button *ngIf="!quizFinalized" id="validButton" class="btn btn-primary btn-dimension mr-0"
+                    tooltip="Pour Finaliser ce Quiz et ensuite pouvoir inviter des participants" placement="bottom"
                     (click)="onValidation()">Valider</button>
             <button *ngIf="quizFinalized" id="inviteButton" class="btn btn-primary btn-dimension mr-0 pt-0" style="line-height: 20px"
+                    tooltip="Pour envoyer des invitations à votre Quiz et voir leurs résultats dans le menu Statistiques" placement="bottom"
                     (click)="onInvite()">Inviter des participants</button>
         </div>
     </div>
@@ -39,6 +43,7 @@
         </div>
     </div>
     <div [ngSwitch]="questionStatus$ | async">
+        <div *ngSwitchCase="'modified'" class="text-center"><span class="badge badge-pill badge-info">En attente de sauvegarde</span></div>
         <div *ngSwitchCase="'saving'" class="text-center"><span class="badge badge-pill badge-primary">Sauvegarde en cours</span></div>
         <div *ngSwitchCase="'saved'" class="text-center"><span class="badge badge-pill badge-success">Sauvegardée</span></div>
         <div *ngSwitchCase="'unsaved'" class="text-center"><span class="badge badge-pill badge-secondary">Non sauvegardée</span></div>
@@ -51,34 +56,36 @@
     *ngIf="!(loadingQuestion | async) && (questionForm$ | async)"
     [questionForm$]="questionForm$"
     [propositions$]="propositions"
-    [currentQuestion]="currentQuestion"
+    [currentQuestion$]="currentQuestion$"
     [quizFinalized]="quizFinalized"
     (deleteQuestionEvent)="onDeleteQuestion()"
 ></app-question>
 
 <!-- Delete question modal template -->
 <ng-template #deleteQuestionTemplate>
-    <div class="modal-header modal-header-validation">
-        <h4 class="modal-title pull-left text-white">Suppression de la question n°{{ currentQuestion.position }}</h4>
-        <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
-            <span class="text-white" aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="modal-body text-center">
-        <span class="mt-2">
-            Après suppression de la question, les champs de saisie seront vidés. Le formulaire
-            apparaîtra toujours pour cette position, mais la question ne fera plus partie du quiz.
-            Vous pourrez à tout moment saisir une nouvelle question à la place.
-            Etes-vous sûr de vouloir supprimer la question ?
-        </span>
-        <br><br>
-        <div>
-            <button type="button" class="btn btn-primary btn-width mr-1" aria-label="Valid" (click)="onConfirmDeleteQuestion()">
-                <span aria-hidden="true">Supprimer</span>
+    <div *ngIf="currentQuestion$ | async as curQuestion">
+        <div class="modal-header modal-header-validation">
+            <h4 class="modal-title pull-left text-white">Suppression de la question n°{{ curQuestion.position }}</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+                <span class="text-white" aria-hidden="true">&times;</span>
             </button>
-            <button type="button" class="btn btn-danger btn-width" aria-label="Close" (click)="bsModalRef.hide()">
-                <span aria-hidden="true">Annuler</span>
-            </button>
+        </div>
+        <div class="modal-body text-center">
+            <span class="mt-2">
+                Après suppression de la question, les champs de saisie seront vidés. Le formulaire
+                apparaîtra toujours pour cette position, mais la question ne fera plus partie du quiz.
+                Vous pourrez à tout moment saisir une nouvelle question à la place.
+                Etes-vous sûr de vouloir supprimer la question ?
+            </span>
+            <br><br>
+            <div>
+                <button type="button" class="btn btn-primary btn-width mr-1" aria-label="Valid" (click)="onConfirmDeleteQuestion()">
+                    <span aria-hidden="true">Supprimer</span>
+                </button>
+                <button type="button" class="btn btn-danger btn-width" aria-label="Close" (click)="bsModalRef.hide()">
+                    <span aria-hidden="true">Annuler</span>
+                </button>
+            </div>
         </div>
     </div>
 </ng-template>

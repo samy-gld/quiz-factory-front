@@ -1,5 +1,6 @@
 import { Quiz } from '../../../model/IQuiz';
 import {
+    ClearQuizState,
     CreateQuizSuccess, DeleteQuizSuccess, FinalizeQuizSuccess, InviteParticipantSuccess, LoadInvitationsSuccess,
     LoadQuizzes, LoadQuizzesSuccess, UpdateQuizSuccess
 } from '../actions/quiz.actions';
@@ -20,8 +21,8 @@ export const initialQuizState: QuizState = quizAdapter.getInitialState({
 });
 
 /**** Selectors ****/
-export const selectQuizState =
-    createFeatureSelector<QuizState>('quizzes');
+export const selectQuizState = createFeatureSelector<QuizState>('quizzes');
+
 export const selectAllQuizzes = createSelector(
     selectQuizState,
     (state: QuizState) => state
@@ -32,6 +33,8 @@ export const {
     selectAll: selectQuizzes,
     selectTotal: countQuizzes
 } = quizAdapter.getSelectors(selectAllQuizzes);
+
+export const isQuizStateLoaded = createSelector(selectQuizState, quizzes => !!quizzes);
 
 export const getLoading = (state: QuizState): boolean => state.loading;
 export const selectLoading = createSelector(selectQuizState, getLoading);
@@ -74,5 +77,8 @@ export const quizReducer = createReducer(
             ...state,
             invitedUsersByQuiz: [...state.invitedUsersByQuiz, invitation]
         })
+    ),
+    on(ClearQuizState,
+        _ => initialQuizState
     )
 );

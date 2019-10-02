@@ -1,15 +1,13 @@
 import { createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
 import {
-    LoadExecutionSuccess,
-    LoadInvitation, LoadInvitationError,
+    ClearExecutionState, LoadExecutionSuccess, LoadInvitation, LoadInvitationError,
     LoadInvitationSuccess, PostAnswer, PostAnswerError, PostAnswerSuccess,
-    PostExecutionError,
-    PostExecutionSuccess, ResetError
+    PostExecutionError, PostExecutionSuccess, ResetError
 } from '../actions/execution.actions';
 import { Execution } from '../../../model/IExecution';
 import { Invitation } from '../../../model/IInvitation';
-import {Question, Quiz} from '../../../model/IQuiz';
-import {Answer} from '../../../model/IAnswer';
+import { Question, Quiz } from '../../../model/IQuiz';
+import { Answer } from '../../../model/IAnswer';
 
 /********** State **********/
 export interface ExecutionState {
@@ -34,6 +32,8 @@ export const initialExecutionState: ExecutionState = {
 
 /********** Selectors **********/
 export const selectExecutionState = createFeatureSelector<ExecutionState>('execution');
+
+export const isExecutionStateLoaded = createSelector(selectExecutionState, execution => !!execution);
 
 export const getCurrentInvitation = (state: ExecutionState): Invitation => state.currentInvitation;
 export const selectCurrentInvitation = createSelector(selectExecutionState, getCurrentInvitation);
@@ -116,9 +116,12 @@ export const executionReducer = createReducer(
         })
     ),
     on(ResetError,
-    state => ({
-        ...state,
-        loading: false,
-        error: ''
-    }))
+        state => ({
+            ...state,
+            loading: false,
+            error: ''
+    })),
+    on(ClearExecutionState,
+        _ => initialExecutionState
+    )
 );

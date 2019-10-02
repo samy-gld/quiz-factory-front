@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QuizExecutionComponent } from './quiz-execution/quiz-execution.component';
 import { QuizExecutionRoutingModule } from './quiz-execution-routing.module';
-import { ReactiveFormsModule } from '@angular/forms';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { executionReducer } from './store/reducers/execution.reducer';
@@ -10,6 +9,7 @@ import { ExecutionEffects } from './store/effects/execution.effects';
 import { QuizLauncherComponent } from './quiz-launcher/quiz-launcher.component';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { DisplayResultComponent } from './display-result/display-result.component';
+import { BsModalService, ModalModule } from 'ngx-bootstrap/modal';
 
 @NgModule({
     declarations: [
@@ -19,8 +19,8 @@ import { DisplayResultComponent } from './display-result/display-result.componen
     ],
     imports: [
         CommonModule,
+        ModalModule.forRoot(),
         QuizExecutionRoutingModule,
-        ReactiveFormsModule,
         ProgressbarModule.forRoot(),
         StoreModule.forFeature('execution', executionReducer),
         EffectsModule.forFeature([ExecutionEffects])
@@ -29,6 +29,9 @@ import { DisplayResultComponent } from './display-result/display-result.componen
         QuizExecutionComponent,
         QuizLauncherComponent,
         DisplayResultComponent
+    ],
+    providers: [
+        BsModalService
     ]
 })
 export class QuizExecutionModule { }

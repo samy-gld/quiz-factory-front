@@ -1,11 +1,31 @@
 <div [ngSwitch]="true">
+    <div *ngSwitchCase="quizPassed$ | async" class="container-fluid">
+        <h1>C'est terminé, merci pour votre participation !!</h1>
+        <br>
+        <h5>Si à votre tour vous voulez créer un Quiz et défier des participants,
+            n'hésitez pas une seconde et <a routerLink="../../register" class="btn-link text-primary"><b>inscrivez vous</b></a>
+        </h5>
+    </div>
+    <div *ngSwitchCase="noToken" class="container-fluid">
+        <h1>Vous avez été invité pour participer à un Quiz ?</h1>
+        <br>
+        <h3>Deux solutions s'offrent à vous :</h3>
+        <ul>
+            <li>Cliquez directement sur le lien qui vous a été transmis par mail</li>
+            <li>Saisissez ci-dessous le code qui vous a été transmis et cliquez sur Rechercher</li>
+        </ul>
+        <div class="d-flex">
+            <input type="text" #manualInput style="width: 300px">
+            <button type="button" class="btn btn-primary" (submit)="onSearchInvitation()" (click)="onSearchInvitation()">Rechercher</button>
+        </div>
+    </div>
     <div *ngSwitchCase="loading$ | async" class="loader">Loading...</div>
     <div *ngSwitchCase="notFound$ | async" class="container-fluid">
-        <h1>Erreur d'adresse !!</h1>
+        <h1>Erreur !!</h1>
         <br>
-        <h3>L'URL à laquelle vous tentez d'accéder ne correspond à aucune invitation pour participer à un Quiz</h3>
+        <h3>L'URL à laquelle vous tentez d'accéder, ou le code saisi, ne correspond à aucune invitation pour participer à un Quiz</h3>
         <br>
-        <h5>Veuillez vérifier l'adresse indiquée dans le mail d'invitation</h5>
+        <h5>Veuillez vérifier l'adresse indiquée dans le mail d'invitation ou le code saisi</h5>
     </div>
     <div *ngSwitchCase="existExecution$ | async" class="container-fluid">
         <h1>Désolé !!</h1>
@@ -18,12 +38,12 @@
         <div *ngIf="(currentQuiz$ | async) as currentQuiz" class="container-fluid">
             <h1>Bienvenue sur Quiz Factory !!</h1>
             <br>
-            <h3>Vous avez été invité par pour participer à son Quiz</h3>
+            <h3>Vous avez été invité par {{ quizAdministrator$ | async | titlecase }} pour participer à son Quiz</h3>
             <br>
             <h5 >Nom du Quiz : {{ currentQuiz.name }}</h5>
             <h5>Description du Quiz : {{ currentQuiz.description }}</h5>
             <br>
-            <button type="button" class="btn btn-primary" (click)="onLaunchQuiz()">Lancer le Quiz</button>
+            <button type="submit" class="btn btn-primary" (click)="onLaunchQuiz()">Lancer le Quiz</button>
         </div>
     </div>
 </div>

@@ -3,14 +3,10 @@
     <br>
     <div class="form-group">
         <select class="custom-select" #quizzes style="width: 600px" (change)="onSelect(quizzes.value)">
-            <option selected>Sélectionnez le Quiz</option>
+            <option selected>{{ defaultSelectedValue$ | async }}</option>
             <option *ngFor="let quiz of quizzes$ | async; let i = index" [attr.value]="quiz.id">{{ quiz.name }} - {{ quiz.description }}</option>
         </select>
     </div>
     <br>
     <app-display-stats [quizId]="quizId"></app-display-stats>
 </div>
-
-<ng-template #spinner>
-    <div class="loader">Loading...</div>
-</ng-template>

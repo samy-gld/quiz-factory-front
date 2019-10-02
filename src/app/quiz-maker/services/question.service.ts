@@ -114,7 +114,7 @@ export class QuestionService {
                             this.questionStore.dispatch(CreateQuestion({question, quizId}));
                         } else {
                             const qState = questionsState[question.position];
-                            if (qState.label !== question.label || qState.type !== question.type ||
+                            if (qState.label.trim() !== question.label.trim() || qState.type !== question.type ||
                                 !this.equalPropositionsTabs(qState.propositions, question.propositions)) {
                                     this.questionStore.dispatch(UpdateQuestion({question}));
                                 }
@@ -125,7 +125,7 @@ export class QuestionService {
     }
 
     private equalPropositions(p1: Proposition, p2: Proposition) {
-        return (p1.label === p2.label && p1.wrightAnswer === p2.wrightAnswer && p1.id === p2.id);
+        return (p1.label.trim() === p2.label.trim() && p1.wrightAnswer === p2.wrightAnswer && p1.id === p2.id);
     }
 
     private equalPropositionsTabs(propsTab1: Proposition[], propsTab2: Proposition[]): boolean {

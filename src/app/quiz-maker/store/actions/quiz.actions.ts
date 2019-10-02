@@ -107,6 +107,10 @@ export const InviteParticipantError = createAction(
     props<{error: string}>()
 );
 
+export const ClearQuizState = createAction(
+    '[Logout] Clear QuizState'
+);
+
 const actions = union({
     LoadQuizzes, LoadQuizzesSuccess, LoadQuizzesError,
     CreateQuiz, CreateQuizSuccess, CreateQuizError,
@@ -114,7 +118,8 @@ const actions = union({
     DeleteQuiz, DeleteQuizSuccess, DeleteQuizError,
     FinalizeQuiz, FinalizeQuizSuccess, FinalizeQuizError,
     LoadInvitations, LoadInvitationsSuccess, LoadInvitationsError,
-    InviteParticipant, InviteParticipantSuccess, InviteParticipantError
+    InviteParticipant, InviteParticipantSuccess, InviteParticipantError,
+    ClearQuizState
 });
 
 export type ActionsUnion = typeof actions;

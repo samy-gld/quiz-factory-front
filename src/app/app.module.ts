@@ -7,12 +7,12 @@ import { environment } from '../environments/environment';
 import { EffectsModule } from '@ngrx/effects';
 import { ToastrModule } from 'ngx-toastr';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
-import { QuizMakerModule } from './quiz-maker/quiz-maker.module';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { QuizExecutionModule } from './quiz-execution/quiz-execution.module';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { QuizMakerModule } from './quiz-maker/quiz-maker.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @NgModule({
   declarations: [
@@ -20,13 +20,13 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
   ],
   imports: [
     BrowserAnimationsModule,
+    HttpClientModule,
     CollapseModule.forRoot(),
     BsDropdownModule.forRoot(),
-    HttpClientModule,
     ToastrModule.forRoot(),
     AuthenticationModule,
     QuizMakerModule,
-    QuizExecutionModule,
+    StatisticsModule,
     AppRoutingModule,
     StoreModule.forRoot({}, {
       runtimeChecks: {

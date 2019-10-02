@@ -5,15 +5,15 @@ import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
 import { Question, Proposition, Quiz } from '../../model/IQuiz';
 import { select, Store } from '@ngrx/store';
 import { debounceTime, filter, map, skipWhile, take, takeWhile } from 'rxjs/operators';
-import { Observable, of, Subscription, timer } from 'rxjs';
+import { combineLatest, Observable, of, Subscription, timer } from 'rxjs';
 import {
     DecrementPosition, DeleteQuestion, GoToPosition, IncrementPosition, LoadQuiz, ResetErrorSaving, UnsetAll
 } from '../store/actions/question.actions';
 import { UpdateQuestionForm } from '../store/actions/question.actions';
 import { ToastrService } from 'ngx-toastr';
 import {
-    QuestionState, selectCountQuestions, selectCurrentQuestion,
-    selectCurrentQuestionPosition, selectCurrentQuiz, selectErrorSaving, selectLoading, selectSavePendingQuestions
+    QuestionState, selectCountQuestions, selectCurrentQuestion, selectCurrentQuestionPosition, selectCurrentQuiz,
+    selectErrorSaving, selectLoading, selectModifiedQuestionsPos, selectSavePendingQuestions
 } from '../store/reducers/question.reducer';
 import {FinalizeQuiz, LoadInvitations} from '../store/actions/quiz.actions';
 import { QuizState } from '../store/reducers/quiz.reducer';
@@ -32,6 +32,7 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
     currentQuizId: number;
     quizFinalized: boolean;
     currentQuestion: Question;
+    currentQuestion$: Observable<Question>;
     questionPosition = 1;
     typeLength = {duo: 2, carre: 4, qcm: 6};
     loadingQuestion = this.questionStore.select(selectLoading);
@@ -122,24 +123,34 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
         ).subscribe(
             currentPosition => this.questionPosition = currentPosition
         );
-        this.questionStore.pipe(
+
+        this.currentQuestion$ = this.questionStore.pipe(
             select(selectCurrentQuestion),
             take(1)
-        ).subscribe(
+        );
+
+        this.currentQuestion$.subscribe(
             q => this.currentQuestion = q
         );
 
         this.questionStatus$ =
-            this.questionStore.pipe(
-                select(selectSavePendingQuestions),
-                map((savePendingQuestions) => {
-                    const index = savePendingQuestions.findIndex(p => p.position === this.questionPosition);
+            combineLatest([
+                this.questionStore.select(selectSavePendingQuestions),
+                this.questionStore.select(selectCurrentQuestion),
+                this.questionStore.select(selectModifiedQuestionsPos)
+            ]).pipe(
+                map(([savePendingQuestions, currentQuestion, modifiedQuestionPos]) => {
+                    const indexSaving = savePendingQuestions.findIndex(p => p.position === this.questionPosition);
+                    const indexModified = modifiedQuestionPos.findIndex(p => p === this.questionPosition);
                     switch (true) {
                         case this.quizFinalized:
                             return 'finalized';
-                        case index >= 0:
-                            return savePendingQuestions[index].action; // 'saving' or 'deleting'
-                        case this.currentQuestion !== null:
+                        case indexModified >= 0:
+                            return 'modified';
+                        case indexSaving >= 0:
+                            return savePendingQuestions[indexSaving].action; // 'saving' or 'deleting'
+                        case currentQuestion !== null:
+                            this.currentQuestion$ = of(currentQuestion);
                             return 'saved';
                         default:
                             return 'unsaved';
@@ -211,7 +222,7 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
                 form => form.valueChanges.pipe(
                     debounceTime(500),
                     takeWhile(() => this.alive)
-                    )
+                )
                     .subscribe(
                         change => {
                             this.questionStore.dispatch(UpdateQuestionForm(
@@ -227,7 +238,7 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
                             ));
                         }
                     )
-                )
+            )
         ).subscribe();
     }
 
@@ -316,6 +327,7 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
                     }
                     this.quizStore.dispatch(FinalizeQuiz({id: this.currentQuizId}));
                     this.quizFinalized = true;
+                    this.questionStatus$ = of('finalized');
                     this.questionService.disableForm(this.questionForm$, this.propositions);
                 }
             }
@@ -342,10 +354,14 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
 
     onConfirmDeleteQuestion() {
         this.bsModalRef.hide();
-        const id = this.currentQuestion.id;
-        const questionPosition = this.questionPosition;
-        this.questionStore.dispatch(DeleteQuestion({id, questionPosition}));
+        this.currentQuestion$.subscribe(
+            currentQuestion => this.questionStore.dispatch(DeleteQuestion({
+                id: currentQuestion.id,
+                questionPosition: this.questionPosition
+            }))
+        );
         this.questionStatus$ = of('deleting');
+        this.currentQuestion$ = of(null);
         this.deleteQuestionSubscription =
             this.questionStore.pipe(
                 select(selectSavePendingQuestions),

@@ -11,7 +11,7 @@
 
         <div [ngSwitch]="true">
             <div *ngSwitchCase="!(currentQuestion$ | async)">
-                <app-display-result></app-display-result>
+                <app-display-result (closeModal)="onCloseModal()"></app-display-result>
             </div>
 
             <div *ngSwitchCase="(currentQuestion$ | async) && ((currentQuestion$ | async).type === 'duo' || (currentQuestion$ | async).type === 'carre')"

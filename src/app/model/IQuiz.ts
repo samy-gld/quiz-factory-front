@@ -1,3 +1,5 @@
+import {IUser} from './IUser';
+
 export interface Proposition {
     id?: number;
     label: string;
@@ -23,4 +25,5 @@ export interface Quiz {
     createdAt?: Date;
     lastUpdate?: Date;
     questions?: Question[];
+    user?: IUser;
 }

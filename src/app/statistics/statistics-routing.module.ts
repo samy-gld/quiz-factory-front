@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-
 import { StatisticsComponent } from './statistics.component';
+import { AuthenticationGuard } from '../authentication/services/authentication.guard';
 
 const routes: Routes = [
-    { path: '', component: StatisticsComponent }
+    { path: 'stats', canActivate: [AuthenticationGuard], component: StatisticsComponent }
 ];
 
 @NgModule({

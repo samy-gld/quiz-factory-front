@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { filter, map, take } from 'rxjs/operators';
+import {map, take, withLatestFrom} from 'rxjs/operators';
 import { Question } from '../../../model/IQuiz';
 
 @Component({
@@ -14,7 +14,7 @@ export class QuestionComponent {
 
   @Input() questionForm$: Observable<FormGroup>;
   @Input() propositions$: Observable<any[]>;
-  @Input() currentQuestion: Question;
+  @Input() currentQuestion$: Observable<Question>;
   @Input() quizFinalized: boolean;
   @Output() deleteQuestionEvent: EventEmitter<any> = new EventEmitter<any>();
 
@@ -26,8 +26,11 @@ export class QuestionComponent {
     const type = event.target.value;
     this.questionForm$.pipe(
         take(1),
+        withLatestFrom(
+            this.currentQuestion$
+        ),
         map(
-            questionFormGroup => {
+            ([questionFormGroup, currentQuestion]) => {
               const propArray             = questionFormGroup.get('propositions') as FormArray;
               const currentPropFormLength = propArray.length;
               const diffFields            = this.typeLength[type] - currentPropFormLength;
@@ -38,8 +41,8 @@ export class QuestionComponent {
                   let position        = i + currentPropFormLength + 1;
                   let wrightAnswer    = false;
                   let label           = '';
-                  if (this.currentQuestion !== null && this.currentQuestion.propositions !== undefined) {
-                    const proposition = this.currentQuestion.propositions[i + currentPropFormLength];
+                  if (currentQuestion !== null && currentQuestion.propositions !== undefined) {
+                    const proposition = currentQuestion.propositions[i + currentPropFormLength];
                     if (proposition !== undefined) {
                       id              = proposition.id;
                       position        = proposition.position;

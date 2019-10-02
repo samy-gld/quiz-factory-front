@@ -9,7 +9,6 @@ import { StatisticsEffects } from './store/effects/statistics.effects';
 import { DisplayStatsComponent } from './display-stats/display-stats.component';
 import { PopoverModule } from 'ngx-bootstrap/popover';
 
-
 @NgModule({
     declarations: [
         StatisticsComponent,
