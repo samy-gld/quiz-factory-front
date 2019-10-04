@@ -1,4 +1,4 @@
-import {Proposition, Question, Quiz} from '../../../model/IQuiz';
+import { Proposition, Question, Quiz } from '../../../model/IQuiz';
 import {
     LoadQuizSuccess, GoToPosition, LoadQuiz, LoadQuizError, CreateQuestionSuccess, CreateQuestionError,
     UpdateQuestionSuccess, UpdateQuestionError,
@@ -123,14 +123,14 @@ export const questionReducer = createReducer(
     on(UpdateQuestion, CreateQuestion,
         (state, action) => ({
             ...state,
-            modifiedQuestionsPos: state.modifiedQuestionsPos.slice(0).filter(p => p !== action.question.position),
+            modifiedQuestionsPos: [...state.modifiedQuestionsPos].slice(0).filter(p => p !== action.question.position),
             savePendingQuestions: [...state.savePendingQuestions, {action: 'saving', position: action.question.position}]
         })
     ),
     on(DeleteQuestion,
         (state, action) => ({
             ...state,
-            modifiedQuestionsPos: state.modifiedQuestionsPos.slice(0).filter(p => p !== action.questionPosition),
+            modifiedQuestionsPos: [...state.modifiedQuestionsPos].slice(0).filter(p => p !== action.questionPosition),
             savePendingQuestions: [...state.savePendingQuestions, {action: 'deleting', position: action.questionPosition}]
         })
     ),
@@ -281,8 +281,7 @@ export const questionReducer = createReducer(
             return {
                 ...state,
                 questionForm: qForm,
-                modifiedQuestionsPos: [...state.modifiedQuestionsPos].findIndex(p => p === question.position) === -1 ?
-                    [...state.modifiedQuestionsPos, question.position] : [...state.modifiedQuestionsPos]
+                modifiedQuestionsPos: Array.from(new Set([...state.modifiedQuestionsPos, question.position])) // remove duplicates
             };
         }
     ),
