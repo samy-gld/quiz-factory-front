@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
 import { Question, Proposition, Quiz } from '../../model/IQuiz';
 import { select, Store } from '@ngrx/store';
-import { debounceTime, filter, map, skipWhile, take, takeWhile } from 'rxjs/operators';
+import { debounceTime, filter, map, shareReplay, skipWhile, take, takeWhile, withLatestFrom } from 'rxjs/operators';
 import { combineLatest, Observable, of, Subscription, timer } from 'rxjs';
 import {
     DecrementPosition, DeleteQuestion, GoToPosition, IncrementPosition, LoadQuiz, ResetErrorSaving, UnsetAll
@@ -15,7 +15,7 @@ import {
     QuestionState, selectCountQuestions, selectCurrentQuestion, selectCurrentQuestionPosition, selectCurrentQuiz,
     selectErrorSaving, selectLoading, selectModifiedQuestionsPos, selectSavePendingQuestions
 } from '../store/reducers/question.reducer';
-import {FinalizeQuiz, LoadInvitations} from '../store/actions/quiz.actions';
+import { FinalizeQuiz, LoadInvitations } from '../store/actions/quiz.actions';
 import { QuizState } from '../store/reducers/quiz.reducer';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap';
 import { PreviewComponent } from '../preview/preview.component';
@@ -31,14 +31,11 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
     currentQuiz$: Observable<Quiz>;
     currentQuizId: number;
     quizFinalized: boolean;
-    currentQuestion: Question;
     currentQuestion$: Observable<Question>;
-    questionPosition = 1;
+    questionPosition$: Observable<number>;
     typeLength = {duo: 2, carre: 4, qcm: 6};
-    loadingQuestion = this.questionStore.select(selectLoading);
+    loadingQuestion$: Observable<boolean>;
     questionForm$: Observable<FormGroup>;
-    selectQuizSubscription: Subscription;
-    loadingQuestionsSubscription: Subscription;
     regularSaveLauncher: Subscription;
     deleteQuestionSubscription: Subscription;
     questionStatus$: Observable<string>;
@@ -59,9 +56,11 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
                 private modalService: BsModalService) {}
 
     ngOnInit(): void {
+        this.loadingQuestion$ = this.questionStore.select(selectLoading);
+        this.questionPosition$ = of(1);
         this.currentQuizId = this.activatedRoute.snapshot.params.id as number;
         this.initFirstQuestion();
-        this.regularSaveLauncher = timer(20000, 20000).subscribe(
+        this.regularSaveLauncher = timer(15000, 15000).subscribe(
             () => {
                 this.questionService.onSaveQuestions(this.currentQuizId);
                 this.questionStore.pipe(
@@ -79,12 +78,6 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        if (this.selectQuizSubscription) {
-            this.selectQuizSubscription.unsubscribe();
-        }
-        if (this.loadingQuestionsSubscription) {
-            this.loadingQuestionsSubscription.unsubscribe();
-        }
         if (this.regularSaveLauncher) {
             this.regularSaveLauncher.unsubscribe();
         }
@@ -97,11 +90,6 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
 
     initFirstQuestion(): void {
         this.questionStore.dispatch(LoadQuiz({id: this.currentQuizId}));
-
-        this.loadingQuestionsSubscription = this.loadingQuestion.pipe(
-            skipWhile(loading => loading === true)
-        ).subscribe();
-
         this.currentQuiz$ = this.questionStore.pipe(
             select(selectCurrentQuiz),
             skipWhile(quiz => quiz === null),
@@ -117,11 +105,9 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
     }
 
     initFormQuestion(): void {
-        this.questionStore.pipe(
+        this.questionPosition$ = this.questionStore.pipe(
             select(selectCurrentQuestionPosition),
             take(1)
-        ).subscribe(
-            currentPosition => this.questionPosition = currentPosition
         );
 
         this.currentQuestion$ = this.questionStore.pipe(
@@ -129,19 +115,16 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
             take(1)
         );
 
-        this.currentQuestion$.subscribe(
-            q => this.currentQuestion = q
-        );
-
         this.questionStatus$ =
             combineLatest([
+                this.currentQuestion$,
+                this.questionPosition$,
                 this.questionStore.select(selectSavePendingQuestions),
-                this.questionStore.select(selectCurrentQuestion),
                 this.questionStore.select(selectModifiedQuestionsPos)
             ]).pipe(
-                map(([savePendingQuestions, currentQuestion, modifiedQuestionPos]) => {
-                    const indexSaving = savePendingQuestions.findIndex(p => p.position === this.questionPosition);
-                    const indexModified = modifiedQuestionPos.findIndex(p => p === this.questionPosition);
+                map(([currentQuestion, questionPosition, savePendingQuestions, modifiedQuestionPos]) => {
+                    const indexSaving = savePendingQuestions.findIndex(p => p.position === questionPosition);
+                    const indexModified = modifiedQuestionPos.findIndex(p => p === questionPosition);
                     switch (true) {
                         case this.quizFinalized:
                             return 'finalized';
@@ -158,86 +141,97 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
                 })
             );
 
-        const propFormArray = new FormArray([]);
-        let type: string;
-        let label: string;
-        let propTab: Proposition[];
-        if (this.currentQuestion === null || this.currentQuestion.position !== this.questionPosition) {
-            type    = 'duo';
-            label   = '';
-            propTab = [];
-        } else {
-            type    = this.currentQuestion.type;
-            label   = this.currentQuestion.label;
-            propTab = this.currentQuestion.propositions;
-        }
+        this.questionForm$ = this.currentQuestion$.pipe(
+            withLatestFrom(
+                this.questionPosition$
+            ),
+            map(
+                ([currentQuestion, questionPosition]) => {
+                    const propFormArray = new FormArray([]);
+                    let type: string;
+                    let label: string;
+                    let propTab: Proposition[];
+                    if (currentQuestion === null || currentQuestion.position !== questionPosition) {
+                        type    = 'duo';
+                        label   = '';
+                        propTab = [];
+                    } else {
+                        type    = currentQuestion.type;
+                        label   = currentQuestion.label;
+                        propTab = currentQuestion.propositions;
+                    }
 
-        const propTabLength = propTab.length >= this.typeLength[type] ? propTab.length : this.typeLength[type];
+                    const propTabLength = propTab.length >= this.typeLength[type] ? propTab.length : this.typeLength[type];
 
-        if (propTabLength !== 0) {
-            // propTab.sort((a, b) => a.position - b.position);
-            for (let i = 0; i < propTabLength; i++) {
-                let id: number;
-                let position: number;
-                let wrightAnswer: boolean;
-                let propLabel: string;
-                if (propTab[i] !== undefined) {
-                    id              = propTab[i].id;
-                    position        = propTab[i].position;
-                    wrightAnswer    = propTab[i].wrightAnswer;
-                    propLabel       = propTab[i].label;
-                } else {
-                    id              = null;
-                    position        = i + 1;
-                    wrightAnswer    = false;
-                    propLabel       = '';
-                }
+                    if (propTabLength !== 0) {
+                        // propTab.sort((a, b) => a.position - b.position);
+                        for (let i = 0; i < propTabLength; i++) {
+                            let id: number;
+                            let position: number;
+                            let wrightAnswer: boolean;
+                            let propLabel: string;
+                            if (propTab[i] !== undefined) {
+                                id              = propTab[i].id;
+                                position        = propTab[i].position;
+                                wrightAnswer    = propTab[i].wrightAnswer;
+                                propLabel       = propTab[i].label;
+                            } else {
+                                id              = null;
+                                position        = i + 1;
+                                wrightAnswer    = false;
+                                propLabel       = '';
+                            }
 
-                propFormArray.push(
-                    new FormGroup(
-                        {
-                            id:             new FormControl(id),
-                            position:       new FormControl(position),
-                            wrightAnswer:   new FormControl({value: wrightAnswer, disabled: this.quizFinalized}),
-                            label:          new FormControl({value: propLabel, disabled: this.quizFinalized})
+                            propFormArray.push(
+                                new FormGroup(
+                                    {
+                                        id:             new FormControl(id),
+                                        position:       new FormControl(position),
+                                        wrightAnswer:   new FormControl({value: wrightAnswer, disabled: this.quizFinalized}),
+                                        label:          new FormControl({value: propLabel, disabled: this.quizFinalized})
+                                    }
+                                )
+                            );
                         }
-                    )
-                );
-            }
-        }
+                    }
 
-        this.questionForm$ = of(
-            new FormGroup(
-                {
-                    questionLabel:  new FormControl({value: label, disabled: this.quizFinalized}, Validators.required),
-                    questionType:   new FormControl({value: type, disabled: this.quizFinalized}, Validators.required),
-                    propositions:   propFormArray
+                    return new FormGroup(
+                        {
+                            questionLabel:  new FormControl({value: label, disabled: this.quizFinalized}, Validators.required),
+                            questionType:   new FormControl({value: type, disabled: this.quizFinalized}, Validators.required),
+                            propositions:   propFormArray
+                        }
+                    );
                 }
-            )
+            ),
+            shareReplay({ refCount: true, bufferSize: 1 })
         );
 
         this.questionForm$.pipe(
             takeWhile(() => this.alive),
+            withLatestFrom(
+                this.currentQuestion$,
+                this.questionPosition$
+            ),
             map(
-                form => form.valueChanges.pipe(
+                ([form, currentQuestion, questionPosition]) => form.valueChanges.pipe(
                     debounceTime(500),
                     takeWhile(() => this.alive)
-                )
-                    .subscribe(
-                        change => {
-                            this.questionStore.dispatch(UpdateQuestionForm(
-                                {
-                                    question: {
-                                        id:             this.currentQuestion ? this.currentQuestion.id : null,
-                                        position:       this.questionPosition,
-                                        label:          change.questionLabel,
-                                        type:           change.questionType,
-                                        propositions:   change.propositions
-                                    }
+                ).subscribe(
+                    change => {
+                        this.questionStore.dispatch(UpdateQuestionForm(
+                            {
+                                question: {
+                                    id:             currentQuestion ? currentQuestion.id : null,
+                                    position:       questionPosition,
+                                    label:          change.questionLabel,
+                                    type:           change.questionType,
+                                    propositions:   change.propositions
                                 }
-                            ));
-                        }
-                    )
+                            }
+                        ));
+                    }
+                )
             )
         ).subscribe();
     }
@@ -354,10 +348,14 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
 
     onConfirmDeleteQuestion() {
         this.bsModalRef.hide();
-        this.currentQuestion$.subscribe(
-            currentQuestion => this.questionStore.dispatch(DeleteQuestion({
+        this.currentQuestion$.pipe(
+            withLatestFrom(
+                this.questionPosition$
+            )
+        ).subscribe(
+            ([currentQuestion, questionPosition]) => this.questionStore.dispatch(DeleteQuestion({
                 id: currentQuestion.id,
-                questionPosition: this.questionPosition
+                questionPosition
             }))
         );
         this.questionStatus$ = of('deleting');
@@ -365,8 +363,11 @@ export class QuestionFormComponent implements OnInit, OnDestroy {
         this.deleteQuestionSubscription =
             this.questionStore.pipe(
                 select(selectSavePendingQuestions),
-                skipWhile(spq => spq.findIndex(
-                    p => p.position === this.questionPosition && p.action === 'deleting') !== -1),
+                withLatestFrom(
+                    this.questionPosition$
+                ),
+                skipWhile(([spq, questionPosition]) => spq.findIndex(
+                    p => p.position === questionPosition && p.action === 'deleting') !== -1),
                 take(1)
             ).subscribe(
                 () => this.initFormQuestion()

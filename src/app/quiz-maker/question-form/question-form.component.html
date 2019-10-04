@@ -1,6 +1,6 @@
-<div *ngIf="loadingQuestion | async" class="loader">Loading...</div>
+<div *ngIf="loadingQuestion$ | async" class="loader">Loading...</div>
 
-<div *ngIf="!(loadingQuestion | async) && (currentQuiz$ | async) as currentQuiz" class="container-fluid">
+<div *ngIf="!(loadingQuestion$ | async) && (currentQuiz$ | async) as currentQuiz" class="container-fluid">
     <div class="jumbotron d-flex w-100 justify-content-between p-4 m-2" id="head">
         <h2>{{ currentQuiz.name }}</h2>
         <div>
@@ -18,7 +18,7 @@
     </div>
 </div>
 
-<div *ngIf="!(loadingQuestion | async) && (questionForm$ | async)" class="row d-block">
+<div *ngIf="!(loadingQuestion$ | async) && (questionForm$ | async) && (questionPosition$ | async) as questionPosition" class="row d-block">
     <div class="d-flex justify-content-center mt-3">
         <div class="icons-prev-next">
             <div class="main__item">
@@ -53,7 +53,7 @@
 </div>
 
 <app-question
-    *ngIf="!(loadingQuestion | async) && (questionForm$ | async)"
+    *ngIf="!(loadingQuestion$ | async) && (questionForm$ | async)"
     [questionForm$]="questionForm$"
     [propositions$]="propositions"
     [currentQuestion$]="currentQuestion$"
