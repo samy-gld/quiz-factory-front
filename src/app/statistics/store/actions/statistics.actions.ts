@@ -16,6 +16,21 @@ export const LoadQuizzesError = createAction(
     props<{error: string}>()
 );
 
+export const LoadQuiz = createAction(
+    '[Stats] Load a Quiz',
+    props<{id: number}>()
+);
+
+export const LoadQuizSuccess = createAction(
+    '[Stats] Load a Quiz Success',
+    props<{quiz: Quiz}>()
+);
+
+export const LoadQuizError = createAction(
+    '[Stats] Load a Quiz Error',
+    props<{error: string}>()
+);
+
 export const LoadQuizInvitations = createAction(
     '[Stats] Load Invitations/Executions for a Quiz',
     props<{quizId: number}>()
@@ -56,6 +71,7 @@ export const ClearStatisticsState = createAction(
 
 const actions = union({
     LoadQuizzes, LoadQuizzesSuccess, LoadQuizzesError,
+    LoadQuiz, LoadQuizSuccess, LoadQuizError,
     LoadQuestions, LoadQuestionsSuccess, LoadQuestionsError,
     UnsetAllStats, ClearStatisticsState
 });

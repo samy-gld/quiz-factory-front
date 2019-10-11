@@ -1,0 +1,56 @@
+<div *ngIf="{
+            questions: questions$ | async,
+            invitations: invitations$ | async,
+            answersTab: answersTab$ | async
+        } as results">
+
+    <div *ngIf="results.invitations.length !== 0; else noExecution">
+        <div *ngIf="results.questions && results.invitations && results.answersTab">
+            <p class="mb-0">Ce tableau recense toutes les réponses données par les participants.</p>
+            <p>Survolez les cases du tableau pour voir apparaitre les informations détaillées.</p>
+            <div>
+            <table class="table table-borderless table-dark" style="table-layout: auto; width: auto">
+                <thead>
+                <tr>
+                    <th scope="col">Participant</th>
+                    <th class="text-center" scope="col" *ngFor="let question of results.questions; let i = index"
+                        [popover]="question.label" [popoverTitle]="'Type : ' + question.type | titlecase" triggers="mouseenter mouseleave">
+                        Quest. {{ i + 1 }}
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let invitation of results.invitations; let j = index">
+                    <th scope="row">{{ invitation.lastname }} {{ invitation.firstname }}</th>
+                    <td *ngFor="let question of results.questions; let i = index">
+                        <ng-template #popTemplate><span [innerHtml]="results.answersTab[j][i]" ></span></ng-template>
+                            <div class="text-center"
+                                 [popover]=popTemplate [popoverTitle]="'Réponses données'" triggers="mouseenter mouseleave">
+                                <!-- [ngClass]="invitation.execution.answers[i] ? invitation.execution.answers[i] ? 'text-success' : 'text-danger' : ''" -->
+                                <div *ngIf="!invitation.execution.answers || !invitation.execution.answers[i]; else wrightOrWrong">
+                                    <img src="../../../../assets/images/red-cross.png" alt="wrong">
+                                </div>
+                                <ng-template #wrightOrWrong>
+                                    <div [ngSwitch]="true">
+                                        <div *ngSwitchCase="invitation.execution.answers[i].success">
+                                            <img src="../../../../assets/images/green-check.png" alt="wright">
+                                        </div>
+                                        <div *ngSwitchCase="!invitation.execution.answers[i].success">
+                                            <img src="../../../../assets/images/red-cross.png" alt="wrong">
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #noExecution>
+    <p class="mb-0">Aucun participant n'a pour le moment exécuté ce Quiz.</p>
+    <p>Vous pouvez envoyer des invitations depuis la page de <a [routerLink]="['/quiz/generate', quizId]" class="btn-link text-primary">génération de votre Quiz</a>.</p>
+</ng-template>

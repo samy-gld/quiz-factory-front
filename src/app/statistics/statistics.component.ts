@@ -4,7 +4,8 @@ import { Quiz } from '../model/IQuiz';
 import { select, Store } from '@ngrx/store';
 import { selectFinalizedQuizzes, selectLoadingQuizzes, StatisticsState } from './store/reducers/statistics.reducer';
 import { LoadQuizzes } from './store/actions/statistics.actions';
-import {delay, map, skipWhile, startWith, tap, withLatestFrom} from 'rxjs/operators';
+import { delay, map, skipWhile, startWith, tap, withLatestFrom } from 'rxjs/operators';
+import { StatisticsService } from './services/statistics.service';
 
 @Component({
     selector: 'app-statistics',
@@ -15,11 +16,17 @@ export class StatisticsComponent implements OnInit {
 
     quizzes$: Observable<Quiz[]>;
     quizId: number;
+    statsReady$: Observable<boolean>;
+    loadingStats$: Observable<boolean>;
     defaultSelectedValue$: Observable<string> = of('Chargement de vos quizzes...');
 
-    constructor(private statisticsStore: Store<StatisticsState>) { }
+    constructor(private statisticsService: StatisticsService,
+                private statisticsStore: Store<StatisticsState>) { }
 
     ngOnInit() {
+        this.statsReady$ = this.statisticsService.getStatsReady();
+        this.loadingStats$ = this.statisticsService.getLoadingStats();
+
         this.statisticsStore.dispatch(LoadQuizzes());
         this.quizzes$ = this.statisticsStore.pipe(
             select(selectFinalizedQuizzes),
@@ -46,7 +53,10 @@ export class StatisticsComponent implements OnInit {
         );
     }
 
-    onSelect(quizId: any) {
+    onSelect(quizId: string) {
         this.quizId = Number(quizId);
+        if (!isNaN(this.quizId)) {
+            this.statisticsService.generateStats(this.quizId);
+        }
     }
 }

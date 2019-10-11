@@ -1,6 +1,6 @@
 import { createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
 import {
-    ClearStatisticsState, LoadQuestionsSuccess, LoadQuizInvitationsSuccess,
+    ClearStatisticsState, LoadQuestionsSuccess, LoadQuizInvitations, LoadQuizInvitationsError, LoadQuizInvitationsSuccess, LoadQuizSuccess,
     LoadQuizzes, LoadQuizzesError, LoadQuizzesSuccess, UnsetAllStats
 } from '../actions/statistics.actions';
 import { Question, Quiz } from '../../../model/IQuiz';
@@ -11,14 +11,18 @@ export interface StatisticsState {
     quizzes: Quiz[];
     invitations: Invitation[];
     questions: Question[];
+    currentQuiz: Quiz;
     loadingQuizzes: boolean;
+    loadingInvitations: boolean;
 }
 
 export const initialStatisticsState: StatisticsState = {
     quizzes: [],
     invitations: [],
     questions: [],
-    loadingQuizzes: false
+    currentQuiz: null,
+    loadingQuizzes: false,
+    loadingInvitations: false
 };
 
 /********** Selectors **********/
@@ -32,11 +36,14 @@ export const selectFinalizedQuizzes = createSelector(selectStatisticsState, getF
 export const getExecutedInvitations = (state: StatisticsState): Invitation[] => [...state.invitations].filter(i => i.execution !== null);
 export const selectExecutedInvitations = createSelector(selectStatisticsState, getExecutedInvitations);
 
-export const getQuestions = (state: StatisticsState): Question[] => [...state.questions].sort((a, b) => a.position - b.position);
-export const selectQuestions = createSelector(selectStatisticsState, getQuestions);
-
 export const getLoadingQuizzes = (state: StatisticsState): boolean => state.loadingQuizzes;
 export const selectLoadingQuizzes = createSelector(selectStatisticsState, getLoadingQuizzes);
+
+export const getLoadingInvitations = (state: StatisticsState): boolean => state.loadingInvitations;
+export const selectLoadingInvitations = createSelector(selectStatisticsState, getLoadingInvitations);
+
+export const getCurrentQuiz = (state: StatisticsState): Quiz => state.currentQuiz;
+export const selectCurrentQuiz = createSelector(selectStatisticsState, getCurrentQuiz);
 
 /********** Reducer **********/
 export const statisticsReducer = createReducer(
@@ -59,10 +66,23 @@ export const statisticsReducer = createReducer(
             ...state,
             loadingQuizzes: false
     })),
+    on(LoadQuizInvitations,
+        state => ({
+            ...state,
+            loadingInvitations: true
+        })
+    ),
     on(LoadQuizInvitationsSuccess,
         (state, {invitations}) => ({
             ...state,
-            invitations
+            invitations,
+            loadingInvitations: false
+        })
+    ),
+    on(LoadQuizInvitationsError,
+        state => ({
+            ...state,
+            loadingQuizzes: false
         })
     ),
     on(LoadQuestionsSuccess,
@@ -71,11 +91,18 @@ export const statisticsReducer = createReducer(
             questions
         })
     ),
+    on(LoadQuizSuccess,
+        (state, {quiz}) => ({
+            ...state,
+            currentQuiz: quiz
+        })
+    ),
     on(UnsetAllStats,
         state => ({
             ...state,
             invitations: [],
-            questions: []
+            questions: [],
+            currentQuiz: null
         })
     ),
     on(ClearStatisticsState,

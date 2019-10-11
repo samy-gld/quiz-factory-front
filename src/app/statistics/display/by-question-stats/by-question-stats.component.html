@@ -1,0 +1,25 @@
+<div *ngIf="(successRateByQuestion$ | async) as successRateByQuestion; else noExecution">
+    <p>Ce diagramme donne le pourcentage de réussite par vos invités question par question.</p>
+    <br>
+    <ngx-charts-bar-vertical
+            [legendTitle]="legendTitle"
+            [view]="view"
+            [scheme]="colorScheme"
+            [customColors]="customColors"
+            [results]="successRateByQuestion"
+            [gradient]="gradient"
+            [xAxis]="showXAxis"
+            [yAxis]="showYAxis"
+            [legend]="showLegend"
+            [showXAxisLabel]="showXAxisLabel"
+            [showYAxisLabel]="showYAxisLabel"
+            [xAxisLabel]="xAxisLabel"
+            [yAxisLabel]="yAxisLabel"
+            (select)="onSelect($event)">
+    </ngx-charts-bar-vertical>
+</div>
+
+<ng-template #noExecution>
+    <p class="mb-0">Aucun participant n'a pour le moment exécuté ce Quiz.</p>
+    <p>Vous pouvez envoyer des invitations depuis la page de <a [routerLink]="['/quiz/generate', quizId]" class="btn-link text-primary">génération de votre Quiz</a>.</p>
+</ng-template>

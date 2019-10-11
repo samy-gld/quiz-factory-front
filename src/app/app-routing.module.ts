@@ -1,7 +1,6 @@
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
-import { AuthenticationGuard } from './authentication/services/authentication.guard';
 
 export const AppRoutes: Routes = [
     /*{

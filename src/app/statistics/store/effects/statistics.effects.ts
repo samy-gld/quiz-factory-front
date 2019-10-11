@@ -9,10 +9,10 @@ import {
     ActionsUnion,
     LoadQuestions,
     LoadQuestionsError,
-    LoadQuestionsSuccess,
+    LoadQuestionsSuccess, LoadQuiz, LoadQuizError,
     LoadQuizInvitations,
     LoadQuizInvitationsError,
-    LoadQuizInvitationsSuccess,
+    LoadQuizInvitationsSuccess, LoadQuizSuccess,
     LoadQuizzes,
     LoadQuizzesError,
     LoadQuizzesSuccess
@@ -67,13 +67,24 @@ export class StatisticsEffects {
         )
     ));
 
-    loadQuiz$ = createEffect(() => this.actions$.pipe(
+    loadQuestions$ = createEffect(() => this.actions$.pipe(
         ofType(LoadQuestions),
         mergeMap(
             ({quizId}) =>
                 this.httpClient.get<Question[]>(this.ApiUrl + '/quiz/' + quizId + '/questions').pipe(
                     map((q: Question[]) => LoadQuestionsSuccess({questions: q})),
                     catchError(err => of(LoadQuestionsError({error: err.error.message})))
+                )
+        )
+    ));
+
+    loadQuiz$ = createEffect(() => this.actions$.pipe(
+        ofType(LoadQuiz),
+        mergeMap(
+            ({id}) =>
+                this.httpClient.get<Quiz>(this.ApiUrl + '/quiz/' + id).pipe(
+                    map((q: Quiz) => LoadQuizSuccess({quiz: q})),
+                    catchError(err => of(LoadQuizError({error: err.error.message})))
                 )
         )
     ));
