@@ -56,7 +56,7 @@ export class QuizExecutionComponent implements OnInit {
         this.existExecution$ = this.executionStore.select(selectCurrentInvitation).pipe(
             skipWhile(invitation => invitation === null),
             take(1),
-            map(invitation => invitation.execution !== null)
+            map(invitation => invitation.execution !== undefined && invitation.execution !== null)
         );
 
         this.currentQuiz$ = this.executionStore.pipe(

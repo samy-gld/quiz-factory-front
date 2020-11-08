@@ -96,18 +96,20 @@ export class StatisticsService {
                 invitations.forEach(
                     (invitation, i) => {
                         this.answersTab[i] = Array(nbQuestions).fill('-');
-                        invitation.execution.answers.forEach(
-                            (answer, j) => {
-                                let displayProps = `<ul class="list-group">`;
-                                [...answer.propositions].forEach(value => {
-                                    displayProps += `<li class="list-group-item">` +
+                        if (invitation.execution !== undefined && invitation.execution.answers !== undefined) {
+                            invitation.execution.answers.forEach(
+                                (answer, j) => {
+                                    let displayProps = `<ul class="list-group">`;
+                                    [...answer.propositions].forEach(value => {
+                                      displayProps += `<li class="list-group-item">` +
                                         (value as unknown as Proposition).label +
                                         `</li>`;
-                                });
-                                displayProps += `</ul>`;
-                                this.answersTab[i][j] = displayProps;
-                            }
-                        );
+                                    });
+                                    displayProps += `</ul>`;
+                                    this.answersTab[i][j] = displayProps;
+                                }
+                            );
+                        }
                     });
 
                 this.emitAnswerTabSubject(this.answersTab);
@@ -137,28 +139,30 @@ export class StatisticsService {
                         invitations.forEach(
                             invitation => {
                                 let invitationScore = 0;
-                                invitation.execution.answers.forEach(
-                                    answer => {
+                                if (invitation.execution !== undefined) {
+                                    invitation.execution.answers.forEach(
+                                      answer => {
                                         if (answer.success) {
-                                            invitationScore++;
+                                          invitationScore++;
                                         }
-                                    }
-                                );
+                                      }
+                                    );
 
-                                const result = invitationScore / nbQuestions;
-                                switch (true) {
-                                    case result < 0.25:
-                                        result25++;
-                                        break;
-                                    case result >= 0.25 && result < 0.5:
-                                        result50++;
-                                        break;
-                                    case result >= 0.5 && result < 0.75:
-                                        result75++;
-                                        break;
-                                    case result >= 0.75:
-                                        result100++;
-                                        break;
+                                    const result = invitationScore / nbQuestions;
+                                    switch (true) {
+                                        case result < 0.25:
+                                            result25++;
+                                            break;
+                                        case result >= 0.25 && result < 0.5:
+                                            result50++;
+                                            break;
+                                        case result >= 0.5 && result < 0.75:
+                                            result75++;
+                                            break;
+                                        case result >= 0.75:
+                                            result100++;
+                                            break;
+                                    }
                                 }
                             }
                         );

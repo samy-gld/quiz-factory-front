@@ -27,30 +27,31 @@
                             <div class="text-center"
                                  [popover]=popTemplate [popoverTitle]="'Réponses données'" triggers="mouseenter mouseleave">
                                 <!-- [ngClass]="invitation.execution.answers[i] ? invitation.execution.answers[i] ? 'text-success' : 'text-danger' : ''" -->
-                                <div *ngIf="!invitation.execution.answers || !invitation.execution.answers[i]; else wrightOrWrong">
-                                    <img src="../../../../assets/images/red-cross.png" alt="wrong">
-                                </div>
-                                <ng-template #wrightOrWrong>
-                                    <div [ngSwitch]="true">
-                                        <div *ngSwitchCase="invitation.execution.answers[i].success">
-                                            <img src="../../../../assets/images/green-check.png" alt="wright">
-                                        </div>
-                                        <div *ngSwitchCase="!invitation.execution.answers[i].success">
-                                            <img src="../../../../assets/images/red-cross.png" alt="wrong">
-                                        </div>
-                                    </div>
-                                </ng-template>
-                            </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            </div>
-        </div>
-    </div>
+                                <div *ngIf="invitation.execution === undefined || invitation.execution.answers === undefined || !invitation.execution.answers[i]; else wrightOrWrong">
+                                  <!-- <img src="../../../../assets/images/red-cross.png" alt="wrong"> -->
+                                  -
+                              </div>
+                              <ng-template #wrightOrWrong>
+                                  <div [ngSwitch]="true">
+                                      <div *ngSwitchCase="invitation.execution.answers[i].success">
+                                          <img src="../../../../assets/images/green-check.png" alt="wright">
+                                      </div>
+                                      <div *ngSwitchCase="!invitation.execution.answers[i].success">
+                                          <img src="../../../../assets/images/red-cross.png" alt="wrong">
+                                      </div>
+                                  </div>
+                              </ng-template>
+                          </div>
+                  </td>
+              </tr>
+              </tbody>
+          </table>
+          </div>
+      </div>
+  </div>
 </div>
 
 <ng-template #noExecution>
-    <p class="mb-0">Aucun participant n'a pour le moment exécuté ce Quiz.</p>
-    <p>Vous pouvez envoyer des invitations depuis la page de <a [routerLink]="['/quiz/generate', quizId]" class="btn-link text-primary">génération de votre Quiz</a>.</p>
+  <p class="mb-0">Aucun participant n'a pour le moment exécuté ce Quiz.</p>
+  <p>Vous pouvez envoyer des invitations depuis la page de <a [routerLink]="['/quiz/generate', quizId]" class="btn-link text-primary">génération de votre Quiz</a>.</p>
 </ng-template>
